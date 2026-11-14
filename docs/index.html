@@ -265,6 +265,29 @@ section { padding-block: 88px; }
 .cloud .sw::after { content: ""; position: absolute; top: 3px; inset-inline-start: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--card); }
 @media (max-width: 860px) { .own { grid-template-columns: 1fr; } }
 
+/* Single sign-on */
+.sso { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: center; }
+.signin { background: var(--card); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); padding: 28px; display: grid; gap: 12px; max-width: 420px; justify-self: center; width: 100%; }
+.signin .mark { margin-bottom: 4px; }
+.signin h3 { font-size: 20px; }
+.signin p { color: var(--muted); font-size: 14px; margin-bottom: 6px; }
+.idp { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-weight: 600; font-size: 15px; background: var(--card); }
+.idp.hl { border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-soft); animation: pick 6s ease-in-out infinite; }
+.idp .sq { width: 22px; height: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; flex: none; }
+.idp .sq i { background: var(--ink-2); border-radius: 1px; }
+.idp .g { width: 22px; height: 22px; border-radius: 50%; border: 4px solid var(--ink-2); border-right-color: transparent; flex: none; }
+.idp small { margin-inline-start: auto; font-weight: 400; color: var(--muted); font-size: 12px; }
+.or { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 12px; }
+.or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.mailrow { display: flex; gap: 8px; }
+.mailrow span { flex: 1; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; color: var(--muted); font-size: 14px; }
+.mailrow b { border-radius: 10px; padding: 10px 14px; font-size: 14px; background: var(--navy); color: #fff; }
+@keyframes pick { 0%, 100% { box-shadow: 0 0 0 3px var(--amber-soft) } 50% { box-shadow: 0 0 0 7px var(--amber-soft) } }
+.sso-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.sso-list li { display: grid; grid-template-columns: 28px 1fr; gap: 12px; color: var(--ink-2); font-size: 15px; }
+.sso-list b { color: var(--ink); display: block; }
+@media (max-width: 900px) { .sso { grid-template-columns: 1fr; } }
+
 /* Security */
 .sec-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .sec { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px; display: grid; gap: 10px; align-content: start; }
@@ -379,6 +402,7 @@ footer a { color: var(--ink-2); }
       <a href="#how">How it works</a>
       <a href="#devices">Devices</a>
       <a href="#ai">AI assistants</a>
+      <a href="#sso">SSO</a>
       <a href="#security">Security</a>
       <a href="#controls">Controls</a>
       <a href="#install">Install</a>
@@ -400,7 +424,7 @@ footer a { color: var(--ink-2); }
           <a class="btn btn-amber" href="#install">Install on your server</a>
           <a class="btn btn-ghost" href="#how">See how it works</a>
         </div>
-        <div class="chips"><span>Phone, tablet & computer</span><span>Reads Hebrew receipts</span><span>Works with AI assistants</span><span>No internet needed</span><span>Excel · CSV · PDF</span></div>
+        <div class="chips"><span>Phone, tablet & computer</span><span>Microsoft & Google sign-in</span><span>Reads Hebrew receipts</span><span>Works with AI assistants</span><span>No internet needed</span><span>Excel · CSV · PDF</span></div>
       </div>
 
       <div class="stage" aria-label="Illustration: a receipt is scanned on a phone, its details fill in and it's ready to submit">
@@ -634,6 +658,35 @@ footer a { color: var(--ink-2); }
           <div class="box">Receipt photos <small>yours</small></div>
         </div>
         <div class="cloud"><span class="sw" aria-hidden="true"></span>Cloud AI: off by default</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Single sign-on -->
+  <section id="sso" style="background:var(--paper-2)">
+    <div class="wrap sso">
+      <div>
+        <div class="section-head" style="margin-bottom:24px">
+          <span class="eyebrow">Single sign-on (SSO)</span>
+          <h2>Sign in with the work account you already have</h2>
+          <p class="lead">Connect Microsoft Entra ID (Microsoft 365) or Google Workspace, and your people sign in with one click. No new password to remember, and nothing new for IT to manage.</p>
+        </div>
+        <ul class="sso-list">
+          <li><span class="tick">✓</span><div><b>Your sign-in rules apply</b>People sign in at Microsoft or Google, so your company's own rules, such as two-step verification, cover Refund-Me too.</div></li>
+          <li><span class="tick">✓</span><div><b>Only your organization</b>Microsoft sign-in is tied to your own tenant, never "any Microsoft account", and only people on the list get in. A colleague who isn't on it yet waits for an admin or accountant to approve them.</div></li>
+          <li><span class="tick">✓</span><div><b>Leavers are out</b>Disable someone's work account and they can no longer sign in with it; turn them off in Refund-Me and they're signed out everywhere at once.</div></li>
+          <li><span class="tick">✓</span><div><b>No lock-outs</b>One-time email links and passwords are there for those who need them, and can be switched off once SSO works. Admins can always sign in, so a broken SSO setup can't lock everyone out.</div></li>
+          <li><span class="tick">✓</span><div><b>Set up in the wizard</b>Paste the app ID and secret from your Microsoft or Google admin console; the guide shows exactly where.</div></li>
+        </ul>
+      </div>
+      <div class="signin" aria-label="Illustration: the sign-in page with Microsoft, Google and email-link sign-in">
+        <span class="mark" aria-hidden="true">$</span>
+        <h3>Sign in to Acme expenses</h3>
+        <p>Use your work account.</p>
+        <div class="idp hl"><span class="sq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Continue with Microsoft<small>Entra ID</small></div>
+        <div class="idp"><span class="g" aria-hidden="true"></span>Continue with Google<small>Workspace</small></div>
+        <div class="or">or</div>
+        <div class="mailrow"><span>noa@acme.example</span><b>Email me a link</b></div>
       </div>
     </div>
   </section>
