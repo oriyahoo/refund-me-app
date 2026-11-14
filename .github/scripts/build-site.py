@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """
-Builds the French, Spanish and Hebrew versions of the website from the English pages:
+Builds the French, Spanish and Hebrew versions of the website from the English landing page:
 
     docs/index.html    -> docs/fr/index.html, docs/es/index.html, docs/he/index.html
-    docs/license.html  -> docs/fr/license.html, docs/es/license.html, docs/he/license.html
+
+The license is in English only, never translated (the owner's rule): docs/license.html is the
+one license page, every language links to it, and docs/<lang>/license.html is only a redirect
+there (for links shared before).
 
 The English pages are the source: edit them, then run `python3 .github/scripts/build-site.py`.
 Every text on the English landing page must have a translation below (or be listed in KEEP); a
 text without one stops the build and is printed, so a translated page never silently shows
 English or an old sentence. Amounts follow each language's currency and format ($, euro, shekel).
 
-The license pages carry a translated summary; the English terms stay the binding text.
 Standard library only.
 """
 import pathlib
@@ -489,34 +491,13 @@ add("Receipts in, reimbursements out, with the controls your auditors expect. In
 add("Refund-Me · expense reimbursement for Israeli companies", "Refund-Me · remboursement de notes de frais pour les entreprises israéliennes", "Refund-Me · reembolso de gastos para empresas israelíes", "Refund-Me · החזר הוצאות לחברות בישראל")
 add("· The illustrations use made-up data.", "· Les illustrations utilisent des données fictives.", "· Las ilustraciones usan datos inventados.", "· האיורים משתמשים בנתונים בדויים.")
 
-# --- The license summary pages -----------------------------------------------------------------
-LICENSE = {
-    "fr": {
-        "lang": "fr", "title": "Licence Refund-Me", "desc": "Les conditions d'utilisation de Refund-Me : gratuit pour votre propre entreprise, pas pour la revente.",
-        "back": "← Retour au site", "eyebrow": "Licence",
-        "short": "En bref : gratuit pour votre propre entreprise, pas pour la revente.",
-        "summary": "Toute entreprise peut installer Refund-Me et l'utiliser pour ses propres dépenses, gratuitement. Vous ne pouvez pas le vendre, le redistribuer ni l'exploiter comme service pour d'autres entreprises sans autorisation. Il est fourni tel quel, et vos données restent les vôtres.",
-        "binding": "Ce résumé est une traduction de courtoisie. Seul le texte anglais ci-dessous fait foi.",
-        "terms": "Le texte complet (en anglais)",
-    },
-    "es": {
-        "lang": "es", "title": "Licencia de Refund-Me", "desc": "Las condiciones de uso de Refund-Me: gratis para tu propia empresa, no para reventa.",
-        "back": "← Volver al sitio", "eyebrow": "Licencia",
-        "short": "En resumen: gratis para tu propia empresa, no para reventa.",
-        "summary": "Cualquier empresa puede instalar Refund-Me y usarlo para sus propios gastos, gratis. No puedes venderlo, redistribuirlo ni ofrecerlo como servicio a otras empresas sin permiso. Se entrega tal cual, y tus datos siguen siendo tuyos.",
-        "binding": "Este resumen es una traducción de cortesía. Solo el texto en inglés de abajo es vinculante.",
-        "terms": "El texto completo (en inglés)",
-    },
-    "he": {
-        "lang": "he", "title": "רישיון Refund-Me", "desc": "תנאי השימוש ב-Refund-Me: חינם לחברה שלכם, לא למכירה חוזרת.",
-        "back": "→ חזרה לאתר", "eyebrow": "רישיון",
-        "short": "בקצרה: חינם לחברה שלכם, לא למכירה חוזרת.",
-        "summary": "כל חברה יכולה להתקין את Refund-Me ולהשתמש בו להוצאות שלה, בחינם. אסור למכור אותו, להפיץ אותו מחדש או להפעיל אותו כשירות לחברות אחרות בלי רשות. הוא מסופק כמות שהוא, והמידע שלכם נשאר שלכם.",
-        "binding": "התקציר הזה הוא תרגום לנוחות בלבד. רק הנוסח באנגלית שלמטה מחייב.",
-        "terms": "הנוסח המלא (באנגלית)",
-    },
-}
-LICENSE["fr"] = {k: (fr_typo(v) if k not in ("lang",) else v) for k, v in LICENSE["fr"].items()}
+# --- The license: English only ------------------------------------------------------------------
+LICENSE_REDIRECT = """<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Refund-Me License</title>
+<meta name="robots" content="noindex"><link rel="canonical" href="../license.html">
+<meta http-equiv="refresh" content="0; url=../license.html"></head>
+<body><p><a href="../license.html">Refund-Me License</a></p></body></html>
+"""
 
 
 def translate_landing(src: str, lang: str):
@@ -568,31 +549,13 @@ def translate_landing(src: str, lang: str):
     # Language, direction, and the switcher for this language.
     out = out.replace('<html lang="en">', f'<html lang="{lang}"' + (' dir="rtl">' if lang == "he" else ">"), 1)
     out = re.sub(r'<div class="lang">.*?</ul>\s*</div>', switcher(lang, "index.html"), out, count=1, flags=re.S)
+    # The license is the English page, one level up.
+    out = out.replace('href="license.html"', 'href="../license.html"')
     return out, missing
-
-
-def build_license(src: str, lang: str) -> str:
-    L = LICENSE[lang]
-    out = src.replace('<html lang="en">', f'<html lang="{lang}"' + (' dir="rtl">' if lang == "he" else ">"), 1)
-    out = out.replace("<title>Refund-Me License</title>", f"<title>{L['title']}</title>", 1)
-    out = re.sub(r'(<meta name="description" content=")[^"]*(">)', lambda m: m.group(1) + L["desc"] + m.group(2), out, count=1)
-    out = out.replace('<a class="back" href="./">← Back to the site</a>', f'<a class="back" href="./">{L["back"]}</a>', 1)
-    out = out.replace('<span class="mark">$</span>', f'<span class="mark">{MARK[lang]}</span>', 1)
-    out = out.replace('<span class="eyebrow">License</span>', f'<span class="eyebrow">{L["eyebrow"]}</span>', 1)
-    out = re.sub(r'<div class="summary">.*?</div>',
-                 f'<div class="summary">\n    <b>{L["short"]}</b>\n    <span>{L["summary"]}</span>\n    <span class="binding">{L["binding"]}</span>\n  </div>\n  <h2 class="terms-title">{L["terms"]}</h2>',
-                 out, count=1, flags=re.S)
-    out = out.replace('<h1>Refund-Me License 1.0</h1>', '<h1 lang="en" dir="ltr">Refund-Me License 1.0</h1>', 1)
-    out = out.replace('<p class="sub">', '<p class="sub" lang="en" dir="ltr">', 1)
-    out = out.replace('<div class="doc">', '<div class="doc" lang="en" dir="ltr">', 1)
-    out = out.replace('<p class="note">', '<p class="note" lang="en" dir="ltr">', 1)
-    out = re.sub(r'<div class="lang">.*?</ul>\s*</div>', switcher(lang, "license.html"), out, count=1, flags=re.S)
-    return out
 
 
 def main() -> int:
     landing = (DOCS / "index.html").read_text(encoding="utf-8")
-    license_en = (DOCS / "license.html").read_text(encoding="utf-8")
     problems = 0
     for lang in ("fr", "es", "he"):
         html, missing = translate_landing(landing, lang)
@@ -605,8 +568,8 @@ def main() -> int:
         folder = DOCS / lang
         folder.mkdir(exist_ok=True)
         (folder / "index.html").write_text(html, encoding="utf-8")
-        (folder / "license.html").write_text(build_license(license_en, lang), encoding="utf-8")
-        print(f"[{lang}] docs/{lang}/index.html, docs/{lang}/license.html")
+        (folder / "license.html").write_text(LICENSE_REDIRECT, encoding="utf-8")
+        print(f"[{lang}] docs/{lang}/index.html (license: the English page)")
     return 1 if problems else 0
 
 
