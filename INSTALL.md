@@ -47,7 +47,14 @@ the address people will use and whether they come through Cloudflare or another 
 [HTTPS and the app's address](#https-and-the-apps-address) for why that matters). Options:
 
 - `--url <address>`: `APP_URL`, the address people will use.
-- `--cloudflare`: `CLIENT_IP_HEADER=cf-connecting-ip,x-forwarded-for`.
+- `--cloudflare`: people come through Cloudflare's proxy (the orange cloud).
+  `CLIENT_IP_HEADER=cf-connecting-ip,x-forwarded-for`, and `TRUSTED_PROXIES` set to Cloudflare's
+  published addresses (fetched from cloudflare.com/ips when you install), so only Cloudflare can
+  say who the visitor is. Also allow the port on the server's firewall from those addresses
+  only: Cloudflare Access and Cloudflare's rules protect only what comes through Cloudflare.
+- `--cloudflare-tunnel`: people come through a Cloudflare Tunnel (cloudflared) on this server.
+  The port is published on `127.0.0.1` only (`REFUND_ME_PORT=127.0.0.1:3855`), so nothing on the
+  network can reach the app around the tunnel; point the tunnel at `http://localhost:3855`.
 - `--proxy-ip <list>`: `TRUSTED_PROXIES`, your proxy's addresses or ranges.
 - `--postgres`: a bundled PostgreSQL with a generated admin password.
 - `--port <n>`, `--dir <path>`, `--no-prompt`, `--no-start`.
@@ -244,7 +251,8 @@ kept apart by port). Prefer a name of its own with HTTPS for office use too.
 account. The app sees only what the proxy writes, so tell it which header that is:
 
 - `CLIENT_IP_HEADER`: the header the proxy sets, replacing anything the client sent. Behind
-  Cloudflare (a tunnel or the proxy): `cf-connecting-ip`. Default `x-forwarded-for`.
+  Cloudflare (a tunnel or the proxy): `cf-connecting-ip`. Default `x-forwarded-for`. Always set
+  `TRUSTED_PROXIES` with it: otherwise anyone who reaches the port directly can write that header.
 - `TRUSTED_PROXIES`: the proxies' own addresses or ranges, comma-separated
   (`10.0.1.5,172.18.0.0/16`). With them, an `X-Forwarded-For` chain is read from the right,
   skipping those proxies. Without them, a chain of two or more addresses (two proxies) names

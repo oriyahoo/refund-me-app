@@ -12,6 +12,8 @@ services:
     # The published image. Pin a version (REFUND_ME_VERSION=0.1.0 in .env) to upgrade only when you choose.
     image: ghcr.io/oriyahoo/refund-me:${REFUND_ME_VERSION:-latest}
     restart: unless-stopped
+    # REFUND_ME_PORT=127.0.0.1:3855 publishes it to this server only (a Cloudflare Tunnel or a
+    # proxy running here): nothing on the network can reach the app around them.
     ports:
       - "${REFUND_ME_PORT:-3855}:3855"
     volumes:
@@ -50,6 +52,8 @@ services:
       # When nobody can manage the app (the only admin left): this person becomes an active admin
       # on start, once per value. Remove it once used (INSTALL.md).
       RECOVERY_ADMIN_EMAIL: ${RECOVERY_ADMIN_EMAIL:-}
+      # Optional: the setup wizard asks for this code before anything else (INSTALL.md).
+      SETUP_CODE: ${SETUP_CODE:-}
     # The app runs as an ordinary user and needs no Linux capabilities; no gaining privileges; a
     # memory cap so a spike restarts this container instead of starving the server.
     cap_drop: [ALL]
