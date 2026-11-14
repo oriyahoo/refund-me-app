@@ -19,8 +19,14 @@
 #                       comma-separated, e.g. 172.18.0.0/16 (TRUSTED_PROXIES)
 #   --postgres          also run a bundled PostgreSQL database, with a generated admin password
 #   --port <n>          the port on this server (default 3855)
-#   --no-prompt         don't ask questions (they're only asked in a terminal, on a first install)
+#   --upgrade           with other options on an existing install: also pull the newest version
+#                       (options alone only change settings and restart the same version)
+#   --no-prompt         don't ask questions (they're only asked in a terminal)
 #   --no-start          prepare the folder only
+#
+# Run again with no options to upgrade (it asks first in a terminal: the database is migrated on
+# start, so take a backup). Your .env and key are never replaced; a docker-compose.yml you
+# changed is kept, and the new one saved next to it as docker-compose.yml.new.
 #
 # Prefer to read it first? Download it, read it, then run `sh install.sh`.
 set -eu
@@ -35,20 +41,23 @@ TUNNEL=0
 PROXY_IP=""
 PROMPT=1
 START=1
+UPGRADE=""
+SETTINGS=0
 
 need() { [ $# -ge 2 ] && [ -n "$2" ] || { echo "Option $1 needs a value." >&2; exit 2; }; }
 while [ $# -gt 0 ]; do
   case "$1" in
     --dir) need "$@"; DIR="$2"; shift 2 ;;
-    --url) need "$@"; URL="$2"; shift 2 ;;
-    --cloudflare) CLOUDFLARE=1; shift ;;
-    --cloudflare-tunnel) TUNNEL=1; shift ;;
-    --proxy-ip) need "$@"; PROXY_IP="$2"; shift 2 ;;
+    --url) need "$@"; URL="$2"; SETTINGS=1; shift 2 ;;
+    --cloudflare) CLOUDFLARE=1; SETTINGS=1; shift ;;
+    --cloudflare-tunnel) TUNNEL=1; SETTINGS=1; shift ;;
+    --proxy-ip) need "$@"; PROXY_IP="$2"; SETTINGS=1; shift 2 ;;
     --postgres) POSTGRES=1; shift ;;
-    --port) need "$@"; PORT="$2"; shift 2 ;;
+    --port) need "$@"; PORT="$2"; SETTINGS=1; shift 2 ;;
+    --upgrade) UPGRADE=1; shift ;;
     --no-prompt) PROMPT=0; shift ;;
     --no-start) START=0; shift ;;
-    -h|--help) sed -n '2,27p' "$0" 2>/dev/null || echo "See https://github.com/oriyahoo/refund-me-app/blob/main/INSTALL.md"; exit 0 ;;
+    -h|--help) sed -n '2,34p' "$0" 2>/dev/null || echo "See https://github.com/oriyahoo/refund-me-app/blob/main/INSTALL.md"; exit 0 ;;
     *) echo "Unknown option: $1 (--help lists them)" >&2; exit 2 ;;
   esac
 done
@@ -90,8 +99,23 @@ mkdir -p "$DIR"
 cd "$DIR"
 say "Installing Refund-Me in $(pwd)"
 
-# The compose file is always refreshed (it carries no settings of yours); .env is never overwritten.
-fetch "$REPO_RAW/docker-compose.yml" docker-compose.yml
+# The compose file carries no settings (they're all in .env, which is never overwritten), so it is
+# refreshed, unless it was changed here since the installer wrote it: then the new one is saved
+# next to it and yours stays. .compose.sha256 remembers what the installer wrote.
+sha() { if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1"; else shasum -a 256 "$1"; fi | awk '{print $1}'; }
+fetch "$REPO_RAW/docker-compose.yml" docker-compose.yml.new
+if [ ! -f docker-compose.yml ]; then
+  mv docker-compose.yml.new docker-compose.yml
+elif [ "$(sha docker-compose.yml)" = "$(sha docker-compose.yml.new)" ]; then
+  rm -f docker-compose.yml.new
+elif [ -f .compose.sha256 ] && [ "$(sha docker-compose.yml)" = "$(cat .compose.sha256)" ]; then
+  mv docker-compose.yml.new docker-compose.yml
+else
+  echo "docker-compose.yml was changed here, so it stays. The new one is docker-compose.yml.new:"
+  echo "  compare them (diff docker-compose.yml docker-compose.yml.new), move your additions to .env"
+  echo "  (every variable there reaches the app), then replace it with the new one."
+fi
+sha docker-compose.yml > .compose.sha256
 fetch "$REPO_RAW/.env.example" .env.example
 FIRST=0
 if [ ! -f .env ]; then
@@ -204,8 +228,19 @@ if [ "$START" = "0" ]; then
   exit 0
 fi
 
-# shellcheck disable=SC2086
-docker compose $PROFILE pull
+# An existing install: options alone change settings and restart the same version; no options (or
+# --upgrade) upgrade, after a yes in a terminal, since the database is migrated on start.
+[ -n "$UPGRADE" ] || { [ "$FIRST" = "0" ] && [ "$SETTINGS" = "1" ] && UPGRADE=0; } || UPGRADE=1
+if [ "$FIRST" = "0" ] && [ "$UPGRADE" = "1" ] && [ "$PROMPT" = "1" ] && [ -t 1 ] && (: </dev/tty) 2>/dev/null; then
+  version=$(sed -n 's/^REFUND_ME_VERSION=//p' .env | tail -1)
+  printf 'Upgrade to %s now? The database is migrated on start: take a backup first (INSTALL.md → Upgrades). [y/N] ' "${version:-latest}" > /dev/tty
+  IFS= read -r REPLY < /dev/tty || REPLY=""
+  case "$REPLY" in y|Y|yes|YES) ;; *) UPGRADE=0; echo "Not upgrading: settings applied, same version." ;; esac
+fi
+if [ "$UPGRADE" = "1" ]; then
+  # shellcheck disable=SC2086
+  docker compose $PROFILE pull
+fi
 # shellcheck disable=SC2086
 docker compose $PROFILE up -d
 
@@ -222,4 +257,4 @@ url=$(sed -n 's/^APP_URL=//p' .env | tail -1)
 if [ "$POSTGRES" = "1" ]; then
   echo "Database in the wizard: PostgreSQL, host 'postgres', port 5432, 'Not encrypted', admin 'postgres', password: POSTGRES_ADMIN_PASSWORD in .env."
 fi
-echo "Upgrade later: run this installer again, or: cd $(pwd) && docker compose $PROFILE pull && docker compose $PROFILE up -d"
+echo "Upgrade later: run this installer again (no options), or: cd $(pwd) && docker compose $PROFILE pull && docker compose $PROFILE up -d"

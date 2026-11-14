@@ -23,6 +23,12 @@ services:
     #   openssl rand -base64 32 > refund-me-secret.txt && chmod 600 refund-me-secret.txt
     # Keep a copy in your password manager: without it the saved settings can't be read.
     secrets: [refund_me_secret]
+    # Every setting in .env reaches the app (database, storage, email, sign-in...), so this file
+    # never needs editing: install.sh replaces it on upgrade. The list below documents the
+    # common ones and gives them defaults.
+    env_file:
+      - path: .env
+        required: false
     environment:
       REFUND_ME_SECRET_FILE: /run/secrets/refund_me_secret
       # Public address people use, e.g. https://expenses.company.co.il (optional: the wizard saves

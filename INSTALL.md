@@ -59,8 +59,10 @@ the address people will use and whether they come through Cloudflare or another 
 - `--postgres`: a bundled PostgreSQL with a generated admin password.
 - `--port <n>`, `--dir <path>`, `--no-prompt`, `--no-start`.
 
-Run it again later to upgrade; it never replaces your `.env` or your key, and options given again
-update just those settings.
+Run it again later to upgrade; it never replaces your `.env` or your key. Run with options
+(`--url`, `--cloudflare`, `--proxy-ip`, `--port`...), it only updates those settings and restarts
+the app on the same version; `--upgrade` does both. Before an upgrade it asks you to confirm
+(take a backup first: the database is migrated on start).
 
 **By hand**, the same steps:
 
@@ -383,7 +385,7 @@ docker compose up -d
 ```
 
 (or run the installer again). With `REFUND_ME_VERSION` set to a version in `.env`, change it to
-the new one first. What each version brings: [CHANGELOG.md](CHANGELOG.md).
+the new one first. Settings live in `.env` only, so an upgraded `docker-compose.yml` keeps them. What each version brings: [CHANGELOG.md](CHANGELOG.md).
 
 On every start the container applies any new database migrations as the **owner** login, then
 runs the app as the **app** login. If a migration fails, the container stops with the reason in
@@ -501,8 +503,10 @@ backups above.
 Every setting can also come from environment variables (or Docker secrets via
 `<NAME>_FILE`, e.g. `DATABASE_URL_FILE=/run/secrets/db_url`). Environment variables win over
 what the wizard saved, and the wizard shows those settings as read-only. The common ones are in
-[`.env.example`](.env.example) and already passed on by `docker-compose.yml`; for any other, add
-it under the app's `environment:` there (e.g. `SMTP_HOST: ${SMTP_HOST:-}`) and set it in `.env`.
+[`.env.example`](.env.example); every variable in `.env` reaches the app (`docker-compose.yml` reads
+it with `env_file`), so set any of them there, e.g. `SMTP_HOST=smtp.office365.com`. Don't edit
+`docker-compose.yml`: the installer replaces it on upgrade (or, if you changed it, saves the new
+one as `docker-compose.yml.new` next to it and keeps yours).
 The main ones:
 
 | Variable | Meaning |
