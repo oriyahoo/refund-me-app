@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Refund-Me</title>
-<meta name="description" content="Remboursement de notes de frais pour les entreprises israéliennes : photographiez les reçus, approuvez d'un geste, exportez vers la comptabilité. Sur votre propre serveur, en hébreu et en anglais.">
+<meta name="description" content="Remboursement de notes de frais pour les entreprises israéliennes : photographiez les reçus, approuvez d'un geste, exportez vers la comptabilité. Sur votre propre serveur, en hébreu, anglais, français et espagnol.">
 <link rel="alternate" hreflang="en" href="https://oriyahoo.github.io/refund-me-app/">
 <link rel="alternate" hreflang="fr" href="https://oriyahoo.github.io/refund-me-app/fr/">
 <link rel="alternate" hreflang="es" href="https://oriyahoo.github.io/refund-me-app/es/">
@@ -567,14 +567,14 @@ footer a { color: var(--ink-2); }
   <section class="hero">
     <div class="wrap">
       <div class="copy">
-        <span class="eyebrow">Notes de frais · hébreu et anglais</span>
+        <span class="eyebrow">Notes de frais · 4 langues</span>
         <h1>Photographiez le reçu.<br><em>Soyez remboursé.</em></h1>
         <p class="lead">Les employés photographient leurs reçus avec leur téléphone. Refund-Me les lit, les managers et la comptabilité approuvent d'un geste, et le mois arrive dans votre logiciel comptable. Sur votre propre serveur : vos données ne quittent jamais l'entreprise.</p>
         <div class="ctas">
           <a class="btn btn-amber" href="#install">Installer sur votre serveur</a>
           <a class="btn btn-ghost" href="#how">Voir comment ça marche</a>
         </div>
-        <div class="chips"><span>Téléphone, tablette et ordinateur</span><span>Connexion Microsoft et Google</span><span>Lit les reçus en hébreu</span><span>Compatible avec les assistants IA</span><span>Sans connexion internet</span><span>Excel · CSV · PDF</span></div>
+        <div class="chips"><span>Téléphone, tablette et ordinateur</span><span>Connexion Microsoft et Google</span><span>Lit les reçus en 4 langues</span><span>Toutes devises, converties</span><span>Compatible avec les assistants IA</span><span>Sans connexion internet</span><span>Excel · CSV · PDF</span></div>
       </div>
 
       <div class="stage" aria-label="Illustration : un reçu est photographié sur un téléphone, ses informations se remplissent et il est prêt à être remis">
@@ -683,7 +683,7 @@ footer a { color: var(--ink-2); }
   <div class="facts">
     <div class="wrap">
       <div><b>4 étapes</b><span>Photographier, vérifier, approuver, exporter</span></div>
-      <div><b>2 langues</b><span>Hébreu et anglais, la droite-à-gauche bien faite</span></div>
+      <div><b>4 langues</b><span>Hébreu, anglais, français et espagnol</span></div>
       <div><b>4 bases de données</b><span>Intégrée, PostgreSQL, SQL Server, MySQL</span></div>
       <div><b>0 octet</b><span>ne quittent votre serveur, sauf si vous activez l'IA cloud</span></div>
     </div>
@@ -704,6 +704,7 @@ footer a { color: var(--ink-2); }
         <div class="row"><div class="old">Relancer tout le monde en fin de mois</div><div class="arrow" aria-hidden="true">→</div><div class="new">Des rappels automatiques avant l'échéance, un clic pour relancer tout le monde</div></div>
         <div class="row"><div class="old">Vérifier chaque reçu à l'œil</div><div class="arrow" aria-hidden="true">→</div><div class="new">Des alertes pour les doublons possibles, les dépassements de plafond et les informations manquantes</div></div>
         <div class="row"><div class="old">Tout ressaisir dans le logiciel comptable</div><div class="arrow" aria-hidden="true">→</div><div class="new">Exportez le mois avec les numéros de compte, prêt à importer</div></div>
+        <div class="row"><div class="old">Convertir à la main les reçus des déplacements à l'étranger</div><div class="arrow" aria-hidden="true">→</div><div class="new">Des reçus dans toutes les devises, convertis au taux officiel du jour</div></div>
       </div>
     </div>
   </section>
@@ -812,7 +813,7 @@ footer a { color: var(--ink-2); }
           <p>De grands boutons et l'appareil photo à portée de doigt sur le téléphone. Un appui long sur un reçu ouvre le même menu qu'un clic droit sur ordinateur. Les en-têtes et les filtres restent visibles quand on fait défiler.</p>
         </div>
         <div class="dev-point">
-          <h3>Hébreu, anglais, vos couleurs</h3>
+          <h3>Quatre langues, vos couleurs</h3>
           <p>Chacun dans sa langue, avec de vrais écrans de droite à gauche. Clair, sombre, marine ou chaud, le même sur chaque appareil. Votre logo sur les écrans et les rapports.</p>
         </div>
       </div>
@@ -861,7 +862,7 @@ footer a { color: var(--ink-2); }
         </div>
         <ul>
           <li><span class="tick">✓</span><div><b>Une installation par entreprise</b><span>Sur votre serveur ou votre compte cloud. La base de données et les fichiers sont à vous.</span></div></li>
-          <li><span class="tick">✓</span><div><b>Sans connexion internet</b><span>Les reçus sont lus et les rapports PDF sont produits sur le serveur lui-même.</span></div></li>
+          <li><span class="tick">✓</span><div><b>Sans connexion internet</b><span>Les reçus sont lus et les rapports PDF sont produits sur le serveur lui-même. Il ne récupère que les taux de change du jour, qui peuvent aussi être saisis à la main.</span></div></li>
           <li><span class="tick">✓</span><div><b>L'IA cloud seulement si vous le choisissez</b><span>Connectez Anthropic, OpenAI, xAI, OpenRouter ou votre propre serveur GPU pour une lecture encore meilleure. Désactivé tant qu'un administrateur ne l'active pas et ne confirme pas.</span></div></li>
           <li><span class="tick">✓</span><div><b>Moins conservé, moins exposé</b><span>Le texte brut lu sur les reçus est supprimé après 30 jours.</span></div></li>
         </ul>

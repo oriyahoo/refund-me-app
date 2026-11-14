@@ -3,7 +3,7 @@
 **Snap the receipt. Get paid back. No paper, no chasing, no spreadsheets.**
 
 Refund-Me is expense reimbursement for Israeli companies. Employees photograph receipts on their
-phone, the app reads them (in Hebrew and English), managers and accounting approve with a tap,
+phone, the app reads them (in Hebrew, English, French and Spanish), managers and accounting approve with a tap,
 and the month goes to the accounting system as Excel, CSV or a branded PDF. It runs on your own
 server, so your receipts and your people's details never leave the company.
 
@@ -34,6 +34,7 @@ server, so your receipts and your people's details never leave the company.
 
 **Employees**
 - Scan receipts with the phone camera, many in a row, or upload photos and PDFs (HEIC from iPhones too).
+- Back from a trip abroad? Receipts in another currency are converted at the official rate of their date (Bank of Israel, or the European Central Bank); if your card charged a little more, enter that and accounting sees the difference.
 - See each month at a glance: total, what's ready, what needs you, what's handed in.
 - Returned receipts come back with a note saying what to fix.
 - Personal Insights: where your money went this year.
@@ -82,13 +83,13 @@ Refund-Me is built for the phone first and is just as comfortable on a tablet or
 - **Tablets:** the same app with more room.
 - **Computers:** the list and the selected receipt side by side, headers and filters that stay in view while you scroll, and right-click menus.
 - **Install it like an app:** add it to the home screen on iPhone, iPad or Android and it opens full screen with its own icon. No app store needed. Your app's `/install` page shows how, step by step, with animations: send your people the link.
-- **Hebrew and English,** each person in their own language, with proper right-to-left screens.
+- **Hebrew, English, French and Spanish,** each person in their own language, with proper right-to-left screens in Hebrew.
 - **Your look:** light, dark, navy or warm, the same on all your devices.
 
 ## Your data stays yours
 
 - **On your own server.** One install per company, on your server or your cloud account. You own the database and the files.
-- **No internet needed.** Receipts are read on the server itself, and PDF reports are made there too.
+- **No internet needed.** Receipts are read on the server itself, and PDF reports are made there too. The only thing it fetches is the day's exchange rates (just currency codes and dates are sent), and accounting can enter those by hand instead.
 - **Cloud AI only if you choose it.** For even better reading you can connect an AI provider (Anthropic, OpenAI, xAI, OpenRouter) or your own GPU server. It's off until an admin turns it on and confirms, because receipt photos would then go to that provider.
 - **Less kept, less at risk.** The raw text read from receipts is deleted after 30 days; the receipt, its details and the photo stay.
 - **Your choice of database:** the built-in one for small offices, or PostgreSQL, SQL Server, MySQL or MariaDB.

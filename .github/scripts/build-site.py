@@ -97,10 +97,7 @@ def add(en, fr, es, he):
 
 
 # --- The landing page --------------------------------------------------------------------------
-add("Expense reimbursement for Israeli companies: snap receipts on the phone, approve with a tap, export to accounting. On your own server, in Hebrew and English.",
-    "Remboursement de notes de frais pour les entreprises israéliennes : photographiez les reçus, approuvez d'un geste, exportez vers la comptabilité. Sur votre propre serveur, en hébreu et en anglais.",
-    "Reembolso de gastos para empresas israelíes: fotografía los tickets, aprueba con un toque y exporta a contabilidad. En tu propio servidor, en hebreo e inglés.",
-    "החזר הוצאות לחברות בישראל: מצלמים קבלות בטלפון, מאשרים בנגיעה, מייצאים להנהלת החשבונות. על השרת שלכם, בעברית ובאנגלית.")
+add("Expense reimbursement for Israeli companies: snap receipts on the phone, approve with a tap, export to accounting. On your own server, in Hebrew, English, French and Spanish.", "Remboursement de notes de frais pour les entreprises israéliennes : photographiez les reçus, approuvez d'un geste, exportez vers la comptabilité. Sur votre propre serveur, en hébreu, anglais, français et espagnol.", "Reembolso de gastos para empresas israelíes: fotografía los tickets, aprueba con un toque y exporta a contabilidad. En tu propio servidor, en hebreo, inglés, francés y español.", "החזר הוצאות לחברות בישראל: מצלמים קבלות בטלפון, מאשרים בנגיעה, מייצאים להנהלת החשבונות. על השרת שלכם, בעברית, אנגלית, צרפתית וספרדית.")
 add("Sections", "Sections", "Secciones", "חלקים")
 add("How it works", "Fonctionnement", "Cómo funciona", "איך זה עובד")
 add("Devices", "Appareils", "Dispositivos", "מכשירים")
@@ -110,7 +107,7 @@ add("Controls", "Contrôles", "Controles", "בקרות")
 add("Install", "Installer", "Instalar", "התקנה")
 add("License", "Licence", "Licencia", "רישיון")
 add("Get started", "Commencer", "Empezar", "להתחיל")
-add("Expense reimbursement · Hebrew & English", "Notes de frais · hébreu et anglais", "Reembolso de gastos · hebreo e inglés", "החזר הוצאות · עברית ואנגלית")
+add("Expense reimbursement · 4 languages", "Notes de frais · 4 langues", "Reembolso de gastos · 4 idiomas", "החזר הוצאות · 4 שפות")
 add("Snap the receipt.", "Photographiez le reçu.", "Fotografía el ticket.", "מצלמים את הקבלה.")
 add("Get paid back.", "Soyez remboursé.", "Recupera tu dinero.", "מקבלים החזר.")
 add("Employees photograph receipts on their phone. Refund-Me reads them, managers and accounting approve with a tap, and the month lands in your accounting system. On your own server, so your data never leaves the company.",
@@ -121,7 +118,8 @@ add("Install on your server", "Installer sur votre serveur", "Instalar en tu ser
 add("See how it works", "Voir comment ça marche", "Ver cómo funciona", "לראות איך זה עובד")
 add("Phone, tablet & computer", "Téléphone, tablette et ordinateur", "Móvil, tableta y ordenador", "טלפון, טאבלט ומחשב")
 add("Microsoft & Google sign-in", "Connexion Microsoft et Google", "Acceso con Microsoft y Google", "כניסה עם Microsoft ו-Google")
-add("Reads Hebrew receipts", "Lit les reçus en hébreu", "Lee tickets en hebreo", "קורא קבלות בעברית")
+add("Reads receipts in 4 languages", "Lit les reçus en 4 langues", "Lee tickets en 4 idiomas", "קורא קבלות ב-4 שפות")
+add("Any currency, converted", "Toutes devises, converties", "Cualquier moneda, convertida", "כל מטבע, בהמרה")
 add("Works with AI assistants", "Compatible avec les assistants IA", "Funciona con asistentes de IA", "עובד עם עוזרי AI")
 add("No internet needed", "Sans connexion internet", "Sin necesidad de internet", "בלי צורך באינטרנט")
 add("Illustration: a receipt is scanned on a phone, its details fill in and it's ready to submit",
@@ -194,8 +192,8 @@ add("Managers approve in a tap; accounting closes the month faster, with fewer e
 # Facts
 add("4 steps", "4 étapes", "4 pasos", "4 שלבים")
 add("Snap, check, approve, export", "Photographier, vérifier, approuver, exporter", "Fotografiar, revisar, aprobar, exportar", "מצלמים, בודקים, מאשרים, מייצאים")
-add("2 languages", "2 langues", "2 idiomas", "2 שפות")
-add("Hebrew and English, right-to-left done right", "Hébreu et anglais, la droite-à-gauche bien faite", "Hebreo e inglés, con derecha a izquierda bien hecha", "עברית ואנגלית, עם ימין-לשמאל כמו שצריך")
+add("4 languages", "4 langues", "4 idiomas", "4 שפות")
+add("Hebrew, English, French and Spanish", "Hébreu, anglais, français et espagnol", "Hebreo, inglés, francés y español", "עברית, אנגלית, צרפתית וספרדית")
 add("4 databases", "4 bases de données", "4 bases de datos", "4 מסדי נתונים")
 add("Built-in, PostgreSQL, SQL Server, MySQL", "Intégrée, PostgreSQL, SQL Server, MySQL", "Integrada, PostgreSQL, SQL Server, MySQL", "מובנה, PostgreSQL, SQL Server, MySQL")
 add("0 bytes", "0 octet", "0 bytes", "0 בייטים")
@@ -216,6 +214,8 @@ add("Automatic reminders before the due day, one click to remind everyone", "Des
 add("Checking every receipt by eye", "Vérifier chaque reçu à l'œil", "Revisar cada ticket a ojo", "בדיקה של כל קבלה בעין")
 add("Flags for possible duplicates, over-the-limit amounts and missing details", "Des alertes pour les doublons possibles, les dépassements de plafond et les informations manquantes", "Avisos de posibles duplicados, importes por encima del límite y datos que faltan", "סימונים לכפילויות אפשריות, חריגות מתקרה ופרטים חסרים")
 add("Re-typing it all into the accounting system", "Tout ressaisir dans le logiciel comptable", "Volver a teclearlo todo en el sistema contable", "הקלדה מחדש של הכול למערכת הנהלת החשבונות")
+add("Converting receipts from trips abroad by hand", "Convertir à la main les reçus des déplacements à l'étranger", "Convertir a mano los tickets de los viajes al extranjero", "המרה ידנית של קבלות מנסיעות לחו\"ל")
+add("Receipts in any currency, converted at the day's official rate", "Des reçus dans toutes les devises, convertis au taux officiel du jour", "Tickets en cualquier moneda, convertidos al tipo oficial del día", "קבלות בכל מטבע, מומרות לפי השער היציג של היום")
 add("Export the month with account (GL) codes, ready to import", "Exportez le mois avec les numéros de compte, prêt à importer", "Exporta el mes con los códigos contables, listo para importar", "ייצוא החודש עם קודי חשבון, מוכן לקליטה")
 
 # How it works
@@ -273,7 +273,7 @@ add("Install it like an app", "Installez-la comme une application", "Instálala 
 add("Add it to the home screen on iPhone, iPad or Android: full screen, its own icon, no app store. The app's install page shows how, step by step.", "Ajoutez-la à l'écran d'accueil sur iPhone, iPad ou Android : plein écran, sa propre icône, sans magasin d'applications. La page d'installation de l'application montre comment, étape par étape.", "Añádela a la pantalla de inicio en iPhone, iPad o Android: pantalla completa, su propio icono, sin tienda de apps. La página de instalación de la app muestra cómo, paso a paso.", "מוסיפים אותה למסך הבית באייפון, באייפד או באנדרואיד: מסך מלא, סמל משלה, בלי חנות אפליקציות. דף ההתקנה של האפליקציה מראה איך, שלב אחרי שלב.")
 add("Made for thumbs and mice", "Faite pour le pouce et la souris", "Hecha para el pulgar y el ratón", "מותאמת לאגודל ולעכבר")
 add("Big buttons and the camera one tap away on the phone. Press and hold a receipt for the same menu a right-click opens on a computer. Headers and filters stay in view as you scroll.", "De grands boutons et l'appareil photo à portée de doigt sur le téléphone. Un appui long sur un reçu ouvre le même menu qu'un clic droit sur ordinateur. Les en-têtes et les filtres restent visibles quand on fait défiler.", "Botones grandes y la cámara a un toque en el móvil. Mantén pulsado un ticket para abrir el mismo menú que el clic derecho en el ordenador. Los encabezados y filtros siguen a la vista al desplazarte.", "כפתורים גדולים והמצלמה במרחק נגיעה בטלפון. לחיצה ארוכה על קבלה פותחת את אותו תפריט שלחיצה ימנית פותחת במחשב. הכותרות והמסננים נשארים גלויים בזמן הגלילה.")
-add("Hebrew, English, your colors", "Hébreu, anglais, vos couleurs", "Hebreo, inglés, tus colores", "עברית, אנגלית, הצבעים שלכם")
+add("Four languages, your colors", "Quatre langues, vos couleurs", "Cuatro idiomas, tus colores", "ארבע שפות, הצבעים שלכם")
 add("Each person in their own language with real right-to-left screens. Light, dark, navy or warm, the same on every device. Your logo on screens and reports.", "Chacun dans sa langue, avec de vrais écrans de droite à gauche. Clair, sombre, marine ou chaud, le même sur chaque appareil. Votre logo sur les écrans et les rapports.", "Cada persona en su idioma, con pantallas de derecha a izquierda de verdad. Claro, oscuro, marino o cálido, igual en todos los dispositivos. Tu logotipo en pantallas e informes.", "כל אחד בשפה שלו, עם מסכי ימין-לשמאל אמיתיים. בהיר, כהה, כחול או חם, אותו דבר בכל מכשיר. הלוגו שלכם על המסכים ובדוחות.")
 
 # AI assistants
@@ -313,7 +313,7 @@ add("Your data stays yours", "Vos données restent les vôtres", "Tus datos sigu
 add("Installed on your server. Owned by you.", "Installé sur votre serveur. À vous.", "Instalado en tu servidor. Tuyo.", "מותקן על השרת שלכם. בבעלותכם.")
 add("One install per company", "Une installation par entreprise", "Una instalación por empresa", "התקנה אחת לכל חברה")
 add("On your server or cloud account. You own the database and the files.", "Sur votre serveur ou votre compte cloud. La base de données et les fichiers sont à vous.", "En tu servidor o tu cuenta en la nube. La base de datos y los archivos son tuyos.", "על השרת או חשבון הענן שלכם. מסד הנתונים והקבצים שלכם.")
-add("Receipts are read and PDF reports are made on the server itself.", "Les reçus sont lus et les rapports PDF sont produits sur le serveur lui-même.", "Los tickets se leen y los informes PDF se generan en el propio servidor.", "הקבלות נקראות ודוחות ה-PDF נוצרים על השרת עצמו.")
+add("Receipts are read and PDF reports are made on the server itself. The only thing it fetches is the day's exchange rates, which can be entered by hand instead.", "Les reçus sont lus et les rapports PDF sont produits sur le serveur lui-même. Il ne récupère que les taux de change du jour, qui peuvent aussi être saisis à la main.", "Los tickets se leen y los informes PDF se generan en el propio servidor. Lo único que obtiene son los tipos de cambio del día, que también se pueden introducir a mano.", "הקבלות נקראות ודוחות ה-PDF נוצרים על השרת עצמו. הדבר היחיד שהוא מושך הוא שערי החליפין של היום, ואפשר גם להזין אותם ידנית.")
 add("Cloud AI only if you choose", "L'IA cloud seulement si vous le choisissez", "IA en la nube solo si tú quieres", "AI בענן רק אם בוחרים")
 add("Connect Anthropic, OpenAI, xAI, OpenRouter or your own GPU server for even better reading. Off until an admin turns it on and confirms.", "Connectez Anthropic, OpenAI, xAI, OpenRouter ou votre propre serveur GPU pour une lecture encore meilleure. Désactivé tant qu'un administrateur ne l'active pas et ne confirme pas.", "Conecta Anthropic, OpenAI, xAI, OpenRouter o tu propio servidor GPU para una lectura aún mejor. Apagado hasta que un administrador lo active y lo confirme.", "מחברים את Anthropic,‏ OpenAI,‏ xAI,‏ OpenRouter או שרת GPU משלכם לקריאה טובה עוד יותר. כבוי עד שמנהל מערכת מפעיל ומאשר.")
 add("Less kept, less at risk", "Moins conservé, moins exposé", "Menos guardado, menos riesgo", "פחות נשמר, פחות בסיכון")
