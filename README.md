@@ -160,9 +160,29 @@ curl -fsSL https://raw.githubusercontent.com/oriyahoo/refund-me-app/main/install
 ```
 
 It creates a `refund-me` folder with the settings and an encryption key, downloads the app and
-starts it. Add `-s -- --postgres` for a bundled PostgreSQL database. Prefer to read a script
-before running it? [Read install.sh](install.sh), or follow the
-[manual steps](INSTALL.md#quick-start): it's four commands.
+starts it. Run in a terminal, it asks two quick questions: the address people will use, and
+whether they reach it through Cloudflare or another proxy. Prefer to read a script before running
+it? [Read install.sh](install.sh), or follow the [manual steps](INSTALL.md#quick-start).
+
+**Behind Cloudflare or a proxy?** Say so, and the activity log and the sign-in limits see each
+person's own address instead of the proxy's:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/oriyahoo/refund-me-app/main/install.sh | sh -s -- \
+  --url https://expenses.company.com --cloudflare
+```
+
+| Option | What it does |
+|---|---|
+| `--url <address>` | The address people will use (for links in emails and sign-in) |
+| `--cloudflare` | People come through Cloudflare (its proxy or a Cloudflare Tunnel) |
+| `--proxy-ip <list>` | Your reverse proxy's address or range (nginx, Traefik, Coolify...), e.g. `172.18.0.0/16` |
+| `--postgres` | Also run a bundled PostgreSQL database |
+| `--port <n>` | The port on this server (default 3855) |
+| `--dir <path>` | Where to install (default `./refund-me`) |
+| `--no-prompt` / `--no-start` | Ask nothing / prepare the folder without starting |
+
+All of these end up in `.env`, which you can edit any time (then `docker compose up -d`).
 
 Then open `http://<your-server>:3855`. The setup wizard asks for the database, where to keep
 receipt files and the first admin; then sign-in, email, your branding and how receipts are read.

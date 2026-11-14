@@ -42,9 +42,18 @@ curl -fsSL https://raw.githubusercontent.com/oriyahoo/refund-me-app/main/install
 
 The installer makes a `refund-me` folder with `docker-compose.yml`, your settings (`.env`) and the
 encryption key (`refund-me-secret.txt`), pulls the image and starts it. Open
-`http://<server>:3855`: the setup wizard opens. Options: `--dir <path>`, `--port <n>`,
-`--postgres` (a bundled PostgreSQL with a generated admin password), `--no-start`. Run it again
-later to upgrade; it never replaces your `.env` or your key.
+`http://<server>:3855`: the setup wizard opens. Run in a terminal on a first install, it asks for
+the address people will use and whether they come through Cloudflare or another proxy (see
+[HTTPS and the app's address](#https-and-the-apps-address) for why that matters). Options:
+
+- `--url <address>`: `APP_URL`, the address people will use.
+- `--cloudflare`: `CLIENT_IP_HEADER=cf-connecting-ip,x-forwarded-for`.
+- `--proxy-ip <list>`: `TRUSTED_PROXIES`, your proxy's addresses or ranges.
+- `--postgres`: a bundled PostgreSQL with a generated admin password.
+- `--port <n>`, `--dir <path>`, `--no-prompt`, `--no-start`.
+
+Run it again later to upgrade; it never replaces your `.env` or your key, and options given again
+update just those settings.
 
 **By hand**, the same steps:
 
