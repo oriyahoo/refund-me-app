@@ -29,6 +29,7 @@ KEEP = {
     "curl -fsSL https://raw.githubusercontent.com/oriyahoo/refund-me-app/main/install.sh | sh",
     "cd refund-me && docker compose pull && docker compose up -d", "Excel, CSV, PDF",
     "Language: English",  # the switcher, rebuilt per language
+    "Excel", "CSV", "PDF",
 }
 
 FLAGS = {
@@ -169,6 +170,7 @@ add("Approved on the phone", "Approuvé sur le téléphone", "Aprobado en el mó
 add("manager, accounting", "manager, comptabilité", "responsable, contabilidad", "מנהל, הנהלת חשבונות")
 add("The month goes to accounting", "Le mois part en comptabilité", "El mes llega a contabilidad", "החודש עובר להנהלת החשבונות")
 add("One digital flow from the counter to the books", "Un seul parcours numérique, du comptoir à la comptabilité", "Un único flujo digital, del mostrador a la contabilidad", "תהליך דיגיטלי אחד, מהקופה ועד הספרים")
+add("Checked, no flags", "Vérifié, sans alerte", "Revisado, sin avisos", "נבדק, בלי סימונים")
 add("No paper, no re-typing", "Ni papier, ni ressaisie", "Sin papel, sin volver a teclear", "בלי נייר, בלי הקלדה מחדש")
 add("The problem", "Le problème", "El problema", "הבעיה")
 add("Expenses are still done by hand", "Les notes de frais se font encore à la main", "Los gastos se siguen haciendo a mano", "הוצאות עדיין מטופלות ביד")
