@@ -154,8 +154,8 @@ There are two ways to do it:
   the two logins in. Review and run the script with `psql`, `mysql`, `sqlcmd` or SSMS, then
   press "Connect & continue": the wizard migrates as the owner and checks the app login.
 
-Encryption choices: **verify** (TLS with a certificate the container trusts: public CA, or add
-your CA to the image), **self-signed** (TLS without certificate checks; PostgreSQL and SQL
+Encryption choices: **verify** (TLS with a certificate the container trusts: a public CA, or your
+company's own: see [below](#servers-with-your-companys-own-certificate)), **self-signed** (TLS without certificate checks; PostgreSQL and SQL
 Server only) or **not encrypted** (only inside a trusted network or Docker's own network).
 
 Notes per database:
@@ -177,6 +177,22 @@ Notes per database:
 - **MySQL / MariaDB**: grants are on the app's database (`expenses.*`), which covers future
   tables. The "self-signed" option isn't available: use a trusted certificate, or no encryption
   inside a trusted network.
+
+### Servers with your company's own certificate
+
+A database, mail server, SIEM or log collector whose certificate comes from your company's own
+certificate authority (not a public one) can still be verified: give the app that authority's
+certificate. Node.js, which runs the app, uses its own list of public authorities, not the
+operating system's, so adding the certificate to the image does nothing. Instead:
+
+1. Copy the certificate (PEM, `-----BEGIN CERTIFICATE-----`; several can follow each other in one
+   file) into the data volume: `docker compose cp company-ca.pem app:/data/company-ca.pem`.
+2. Set `NODE_EXTRA_CA_CERTS=/data/company-ca.pem` in `.env` and restart
+   (`docker compose up -d`).
+
+Then "verify" works for the database, email (STARTTLS or SSL), log forwarding over TLS and HTTPS.
+Without it, a server with such a certificate connects only with checks off ("self-signed" for the
+database, "trust" for email, "accept any certificate" for syslog).
 
 ## File storage
 
@@ -403,6 +419,13 @@ run them from the image:
 docker compose run --rm --entrypoint sh app -c \
   'cd /app/migrate && DATABASE_PROVIDER=postgresql DATABASE_MIGRATE_URL="postgresql://expenses_owner:…@db:5432/expenses" node node_modules/prisma/build/index.js migrate deploy'
 ```
+
+**SQL Server Standard or Express, upgrading to 0.2.0 from an earlier version:** that version
+adds a yes/no column to the expenses table. On those editions SQL Server writes it into every
+existing row during the migration, in one transaction (Enterprise and Azure SQL don't). With
+hundreds of thousands of expenses, allow several minutes and enough transaction-log space, and
+upgrade outside working hours. Later versions add only columns that can be empty, which don't
+rewrite the table.
 
 ### If an upgrade fails
 

@@ -95,8 +95,15 @@ set_env() {
 }
 is_set() { grep -q "^$1=." .env; }
 
-mkdir -p "$DIR"
+# The folder holds the encryption key and .env: only its owner may open it. Docker mounts the key
+# into the container itself, so the app reads it whatever the folder allows (review round 4,
+# PKG-41). Give the installer a folder of its own (the default ./refund-me).
+if [ -d "$DIR" ] && [ ! -f "$DIR/refund-me-secret.txt" ] && [ -n "$(ls -A "$DIR" 2>/dev/null)" ]; then
+  echo "Note: $DIR already holds other files; it is made private (only its owner can open it)."
+fi
+(umask 077; mkdir -p "$DIR")
 cd "$DIR"
+chmod 700 .
 say "Installing Refund-Me in $(pwd)"
 
 # The compose file carries no settings (they're all in .env, which is never overwritten), so it is
@@ -203,16 +210,11 @@ if [ ! -f refund-me-secret.txt ]; then
   (umask 077; random 32 > refund-me-secret.txt)
   echo "Created refund-me-secret.txt: the encryption key. Keep a copy in your password manager."
 fi
-# The app runs as user 1000 inside the container and must be able to read the key.
-if [ "$(id -u)" = "0" ]; then
-  chown 1000:1000 refund-me-secret.txt && chmod 600 refund-me-secret.txt
-elif [ "$(id -u)" != "1000" ]; then
-  chmod 644 refund-me-secret.txt
-  echo "Note: refund-me-secret.txt is readable by other users of this server so the app can read it."
-  echo "      For tighter access: sudo chown 1000:1000 refund-me-secret.txt && sudo chmod 600 refund-me-secret.txt"
-else
-  chmod 600 refund-me-secret.txt
-fi
+# The app runs as user 1000 inside the container and must be able to read the key: the file is
+# readable (it keeps its mode inside the container), but nobody else on this server can reach it,
+# since the folder is open to its owner only (above). Not handed to the host's uid 1000, which is
+# often a person's own login.
+if [ "$(id -u)" = "1000" ]; then chmod 600 refund-me-secret.txt; else chmod 644 refund-me-secret.txt; fi
 
 PROFILE=""
 if [ "$POSTGRES" = "1" ]; then

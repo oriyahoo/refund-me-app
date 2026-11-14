@@ -87,9 +87,13 @@ jobs:
           if [ "$PUBLISH" = "true" ] && docker buildx imagetools inspect "$IMAGE:$version" >/dev/null 2>&1; then
             echo "$IMAGE:$version is already published. Versions don't change once out: pick a new one." >&2; exit 1
           fi
+          # :latest is added only after the published image is checked (below), and never for a
+          # pre-release (1.0.0-rc.1): what every default install follows is a finished version.
           tags="$IMAGE:$version,$IMAGE:sha-${sha::7}"
-          [ "$LATEST" = "true" ] && tags="$tags,$IMAGE:latest"
+          latest="$LATEST"
+          case "$version" in *-*) latest=false; echo "Pre-release: not tagged :latest." ;; esac
           {
+            echo "latest=$latest"
             echo "version=$version"
             echo "sha=$sha"
             echo "tags=$tags"
@@ -104,6 +108,13 @@ jobs:
           context: src
           load: true
           tags: refund-me:check
+          labels: |
+            org.opencontainers.image.title=Refund-Me
+            org.opencontainers.image.description=Expense reimbursement for Israeli companies, on your own server
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ steps.v.outputs.version }}
+            org.opencontainers.image.revision=${{ steps.v.outputs.sha }}
+            org.opencontainers.image.licenses=LicenseRef-Refund-Me
           build-args: |
             GIT_SHA=${{ steps.v.outputs.sha }}
             BUILD_TIME=${{ steps.v.outputs.built }}
@@ -116,6 +127,9 @@ jobs:
           curl -sf http://localhost:3855/api/health | grep -q '"setup"'
           curl -sfL http://localhost:3855/setup | grep -q 'name="provider"'
           docker run --rm --entrypoint chromium refund-me:check --version
+          # The third-party licences ship with it (review round 4, PKG-42).
+          docker run --rm --entrypoint cat refund-me:check /app/THIRD_PARTY_NOTICES.txt > THIRD_PARTY_NOTICES.txt
+          grep -q "^Licence: " THIRD_PARTY_NOTICES.txt
           echo "OK: starts, reports setup, opens the wizard; Chromium is in."
 
       - name: PDF rendering and the native modules work
@@ -190,6 +204,7 @@ jobs:
           context: src
           push: true
           tags: ${{ steps.v.outputs.tags }}
+          # The same inputs and labels as the checked build: BuildKit reuses its layers.
           labels: |
             org.opencontainers.image.title=Refund-Me
             org.opencontainers.image.description=Expense reimbursement for Israeli companies, on your own server
@@ -202,6 +217,27 @@ jobs:
             BUILD_TIME=${{ steps.v.outputs.built }}
           sbom: true
           provenance: mode=max
+
+      - name: The published image is the one checked
+        if: ${{ inputs.publish }}
+        env:
+          VERSION: ${{ steps.v.outputs.version }}
+        run: |
+          # Same filesystem layers as refund-me:check, which passed the checks above; otherwise
+          # stop before :latest and the GitHub release (the version tag is then to be withdrawn).
+          docker pull --quiet "$IMAGE:$VERSION" >/dev/null
+          checked=$(docker image inspect --format '{{json .RootFS.Layers}}' refund-me:check)
+          published=$(docker image inspect --format '{{json .RootFS.Layers}}' "$IMAGE:$VERSION")
+          if [ -z "$checked" ] || [ "$checked" != "$published" ]; then
+            echo "The published $IMAGE:$VERSION differs from the image that was checked." >&2; exit 1
+          fi
+          echo "OK: $IMAGE:$VERSION has the checked image's $(printf '%s' "$checked" | grep -o sha256 | wc -l) layers."
+
+      - name: Tag :latest
+        if: ${{ inputs.publish && steps.v.outputs.latest == 'true' }}
+        env:
+          VERSION: ${{ steps.v.outputs.version }}
+        run: docker buildx imagetools create --tag "$IMAGE:latest" "$IMAGE:$VERSION"
 
       - name: Signed build record
         if: ${{ inputs.publish }}
@@ -222,4 +258,5 @@ jobs:
           awk -v v="$VERSION" '$0 ~ "^## " { p = ($2 == v) } p' dist/CHANGELOG.md | tail -n +2 > notes.md
           [ -s notes.md ] || echo "See CHANGELOG.md." > notes.md
           printf '\n---\nImage: `%s:%s`\nDigest: `%s`\n' "$IMAGE" "$VERSION" "$DIGEST" >> notes.md
-          gh release create "v$VERSION" -R "$GITHUB_REPOSITORY" --title "Refund-Me $VERSION" --notes-file notes.md --target "$GITHUB_SHA"
+          printf 'Third-party licences: THIRD_PARTY_NOTICES.txt below (also at /app in the image).\n' >> notes.md
+          gh release create "v$VERSION" -R "$GITHUB_REPOSITORY" --title "Refund-Me $VERSION" --notes-file notes.md --target "$GITHUB_SHA" THIRD_PARTY_NOTICES.txt
