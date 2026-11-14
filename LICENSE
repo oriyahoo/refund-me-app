@@ -1,0 +1,67 @@
+Refund-Me License 1.0
+
+Copyright (c) 2026 oriyahoo. All rights reserved, except as granted below.
+
+"The Software" means Refund-Me as published by the Licensor: the container images at
+ghcr.io/oriyahoo/refund-me, the files in this repository, and their documentation.
+
+1. Free use for your own organization
+
+   You may download, install and run the Software, free of charge, for your own organization's
+   internal business purposes, such as managing the expenses of your own employees, on servers
+   or cloud accounts that you control or that are run for you. This includes your affiliates, and
+   contractors working for you, using it for those same purposes.
+
+2. What is not allowed
+
+   Without the Licensor's written permission, you may not:
+
+   a. sell, rent, lease, sublicense or otherwise charge for the Software;
+   b. redistribute the Software or modified copies of it, including the container images,
+      other than by pointing to this repository;
+   c. offer the Software, or anything built from it, as a hosted or managed service to anyone
+      outside your organization;
+   d. remove or change copyright notices, this license, or the Software's name or attributions;
+   e. reverse engineer or decompile the Software, except to the extent the law allows despite
+      this restriction.
+
+   Configuring the Software through its settings and documented environment variables, and
+   adding your own certificates to the image for your own use, are not modifications for the
+   purpose of this license.
+
+3. Ownership and feedback
+
+   The Licensor keeps all rights, title and interest in the Software. If you send suggestions or
+   reports, the Licensor may use them without obligation to you.
+
+4. Your data
+
+   Your data stays yours. The Software runs on your infrastructure; the Licensor receives none of
+   your data through it.
+
+5. No warranty
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+   BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   NONINFRINGEMENT. You are responsible for your installation, its security, its backups, and
+   for checking that its results (amounts, approvals, exports) meet your accounting and legal
+   requirements.
+
+6. Limitation of liability
+
+   TO THE FULLEST EXTENT THE LAW ALLOWS, IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY CLAIM,
+   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR ITS USE.
+
+7. Termination
+
+   This license ends automatically if you break its terms. You must then stop using the Software
+   and delete your copies. Sections 3, 5 and 6 survive.
+
+8. Other terms
+
+   For uses this license doesn't allow (reselling, hosting for others, partnerships), contact the
+   Licensor through https://github.com/oriyahoo/refund-me-app/issues.
+
+   Third-party components inside the Software (open-source libraries, Chromium, the OCR engine
+   and others) remain under their own licenses.

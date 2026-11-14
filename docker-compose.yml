@@ -1,0 +1,103 @@
+# Refund-Me with Docker Compose. See INSTALL.md.
+#
+#   docker compose up -d                      # the app: pick the built-in database or your own in the wizard
+#   docker compose --profile postgres up -d   # the app plus a bundled PostgreSQL
+#   docker compose --profile gpu up -d        # the app plus the GPU receipt reader (Ollama, NVIDIA GPU)
+#
+# Upgrade: docker compose pull && docker compose up -d
+# Settings that can also be fixed here instead of in the wizard: see .env.example.
+
+services:
+  app:
+    # The published image. Pin a version (REFUND_ME_VERSION=0.1.0 in .env) to upgrade only when you choose.
+    image: ghcr.io/oriyahoo/refund-me:${REFUND_ME_VERSION:-latest}
+    restart: unless-stopped
+    ports:
+      - "${REFUND_ME_PORT:-3855}:3855"
+    volumes:
+      - app-data:/data
+    # The key that encrypts the passwords the wizard saves, kept outside the data volume, so a copy
+    # of the volume alone reveals nothing. install.sh creates refund-me-secret.txt; by hand:
+    #   openssl rand -base64 32 > refund-me-secret.txt && chmod 600 refund-me-secret.txt
+    # Keep a copy in your password manager: without it the saved settings can't be read.
+    secrets: [refund_me_secret]
+    environment:
+      REFUND_ME_SECRET_FILE: /run/secrets/refund_me_secret
+      # Public address people use, e.g. https://expenses.company.co.il (optional: the wizard saves
+      # the address it was opened from).
+      APP_URL: ${APP_URL:-}
+      # More names the server answers to, comma-separated (optional; INSTALL.md).
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-}
+      # The header your proxy puts the visitor's address in. Behind Cloudflare: cf-connecting-ip,x-forwarded-for.
+      CLIENT_IP_HEADER: ${CLIENT_IP_HEADER:-}
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
+      APP_TIMEZONE: ${APP_TIMEZONE:-}
+      REMINDER_HOUR: ${REMINDER_HOUR:-9}
+      OCR_TEXT_KEEP_DAYS: ${OCR_TEXT_KEEP_DAYS:-}
+      RECEIPT_MAX_AGE_DAYS: ${RECEIPT_MAX_AGE_DAYS:-}
+      # Days an activity entry keeps the address it came from (default 365; 0: not kept).
+      ACTIVITY_IP_KEEP_DAYS: ${ACTIVITY_IP_KEEP_DAYS:-}
+      # Database and background work (INSTALL.md). Empty: the default.
+      DATABASE_POOL_SIZE: ${DATABASE_POOL_SIZE:-}
+      DATABASE_STATEMENT_TIMEOUT_SECONDS: ${DATABASE_STATEMENT_TIMEOUT_SECONDS:-}
+      AUTO_MIGRATE: ${AUTO_MIGRATE:-}
+      JOB_RUNNER: ${JOB_RUNNER:-}
+      OCR_WORKERS: ${OCR_WORKERS:-}
+      FILE_WORKERS: ${FILE_WORKERS:-}
+      # A failed upgrade, without a shell (INSTALL.md → If an upgrade fails). Remove once used.
+      MIGRATE_RESOLVE_ROLLED_BACK: ${MIGRATE_RESOLVE_ROLLED_BACK:-}
+      MIGRATE_TIMEOUT_MINUTES: ${MIGRATE_TIMEOUT_MINUTES:-}
+      # When nobody can manage the app (the only admin left): this person becomes an active admin
+      # on start, once per value. Remove it once used (INSTALL.md).
+      RECOVERY_ADMIN_EMAIL: ${RECOVERY_ADMIN_EMAIL:-}
+    # The app runs as an ordinary user and needs no Linux capabilities; no gaining privileges; a
+    # memory cap so a spike restarts this container instead of starving the server.
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 2048
+    mem_limit: ${REFUND_ME_MEMORY_LIMIT:-4g}
+
+  # Optional bundled PostgreSQL (docker compose --profile postgres up -d). In the wizard choose
+  # PostgreSQL, host "postgres", port 5432, encryption "Not encrypted", admin user "postgres"
+  # and the password from POSTGRES_ADMIN_PASSWORD in .env.
+  postgres:
+    image: postgres:17.11
+    profiles: [postgres]
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:-}  # required with this profile: set it in .env
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      retries: 10
+
+  # Optional GPU receipt reader (docker compose --profile gpu up -d) on a host with an NVIDIA GPU
+  # and the NVIDIA Container Toolkit. Then: docker compose exec ollama ollama pull qwen2.5vl:7b
+  # and in Admin → System set the GPU server address to http://ollama:11434.
+  ollama:
+    image: ollama/ollama:0.40.13
+    profiles: [gpu]
+    restart: unless-stopped
+    volumes:
+      - ollama-models:/root/.ollama
+    environment:
+      OLLAMA_KEEP_ALIVE: 24h
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  app-data:
+  postgres-data:
+  ollama-models:
+
+secrets:
+  refund_me_secret:
+    file: ./refund-me-secret.txt

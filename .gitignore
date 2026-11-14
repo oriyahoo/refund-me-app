@@ -1,0 +1,3 @@
+# Your settings and key, if you run it from a clone of this repository.
+.env
+refund-me-secret.txt
