@@ -166,7 +166,7 @@ add("Snap the receipt", "Photographiez le reçu", "Fotografía el ticket", "מצ
 add("phone camera", "appareil photo", "cámara del móvil", "מצלמת הטלפון")
 add("The app reads it", "L'application le lit", "La app lo lee", "האפליקציה קוראת אותה")
 add("details filled in", "informations remplies", "datos rellenados", "הפרטים מתמלאים")
-add("Approved on the phone", "Approuvé sur le téléphone", "Aprobado en el móvil", "אישור בטלפון")
+add("Approved", "Approuvé", "Aprobado", "אישור")
 add("manager, accounting", "manager, comptabilité", "responsable, contabilidad", "מנהל, הנהלת חשבונות")
 add("The month goes to accounting", "Le mois part en comptabilité", "El mes llega a contabilidad", "החודש עובר להנהלת החשבונות")
 add("One digital flow from the counter to the books", "Un seul parcours numérique, du comptoir à la comptabilité", "Un único flujo digital, del mostrador a la contabilidad", "תהליך דיגיטלי אחד, מהקופה ועד הספרים")
