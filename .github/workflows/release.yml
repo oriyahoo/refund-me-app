@@ -27,6 +27,10 @@ on:
         description: "Also tag it :latest (what installs follow by default)"
         type: boolean
         default: true
+      publish:
+        description: "Publish it (off: build, check and scan only, e.g. to try a branch)"
+        type: boolean
+        default: true
 
 permissions: {}
 
@@ -68,13 +72,14 @@ jobs:
         env:
           INPUT_VERSION: ${{ inputs.version }}
           LATEST: ${{ inputs.latest }}
+          PUBLISH: ${{ inputs.publish }}
         run: |
           version="${INPUT_VERSION:-$(node -p "require('./src/package.json').version")}"
           if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$'; then
             echo "Not a version: $version" >&2; exit 1
           fi
           sha=$(git -C src rev-parse HEAD)
-          if docker buildx imagetools inspect "$IMAGE:$version" >/dev/null 2>&1; then
+          if [ "$PUBLISH" = "true" ] && docker buildx imagetools inspect "$IMAGE:$version" >/dev/null 2>&1; then
             echo "$IMAGE:$version is already published. Versions don't change once out: pick a new one." >&2; exit 1
           fi
           tags="$IMAGE:$version,$IMAGE:sha-${sha::7}"
@@ -108,17 +113,61 @@ jobs:
           docker run --rm --entrypoint chromium refund-me:check --version
           echo "OK: starts, reports setup, opens the wizard; Chromium is in."
 
+      - name: PDF rendering and the native modules work
+        run: |
+          # Chromium prints a page with Hebrew and English text and an image to PDF, the way the
+          # reports are made (no sandbox, no GPU, inline content only).
+          docker run --rm --entrypoint sh refund-me:check -c '
+            chromium --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --no-pdf-header-footer \
+              --print-to-pdf=/tmp/t.pdf "data:text/html;charset=utf-8,<html dir=rtl><body><h1>%D7%93%D7%95%D7%97 Report 186.50</h1><img src=\"data:image/gif;base64,R0lGODlhAQABAAAAACw=\"></body></html>" 2>/dev/null
+            test -s /tmp/t.pdf && head -c 5 /tmp/t.pdf | grep -q %PDF && echo "PDF: $(wc -c < /tmp/t.pdf) bytes"'
+          # The native modules load and work on this Debian: images (sharp), the canvas PDF pages
+          # are drawn on, and the built-in SQLite database.
+          docker run --rm --entrypoint node -w /app refund-me:check -e '
+            const sharp = require("sharp");
+            const Database = require("better-sqlite3");
+            const { createCanvas } = require("@napi-rs/canvas");
+            (async () => {
+              const jpg = await sharp({ create: { width: 20, height: 20, channels: 3, background: "#e0a82e" } }).jpeg().toBuffer();
+              const db = new Database(":memory:"); db.exec("create table t(x); insert into t values (1)");
+              const c = createCanvas(10, 10); c.getContext("2d").fillRect(0, 0, 5, 5);
+              console.log("native modules: sharp", jpg.length, "bytes; sqlite", db.prepare("select x from t").get().x, "; canvas", c.toBuffer("image/png").length, "bytes");
+            })().catch((e) => { console.error(e); process.exit(1); });'
+
+      - name: Scan the built image (when not publishing)
+        if: ${{ !inputs.publish }}
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/osv-scanner" https://github.com/google/osv-scanner/releases/download/v2.6.0/osv-scanner_linux_amd64
+          echo "ca69b3d3cd08f889a49dc0a383122f71cc528b83803671df5fd874d97485b108  $RUNNER_TEMP/osv-scanner" | sha256sum -c
+          chmod +x "$RUNNER_TEMP/osv-scanner"
+          set +e
+          "$RUNNER_TEMP/osv-scanner" scan image refund-me:check --format=json --output-file=osv-image.json --verbosity=error
+          set -e
+          {
+            echo "## Test build of \`${{ inputs.ref }}\` (not published)"
+            echo
+            python3 -I dist/.github/scripts/osv-summary.py "Built image=osv-image.json"
+          } >> "$GITHUB_STEP_SUMMARY"
+          python3 -I - <<'PY'
+          import json
+          d = json.load(open("osv-image.json"))
+          n = sum(len(p.get("groups", [])) for r in d.get("results", []) for p in r["packages"])
+          print("known vulnerabilities in the built image:", n)
+          PY
+
       - name: Logs (if the check failed)
         if: failure()
         run: docker logs check 2>&1 | tail -60 || true
 
       - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        if: ${{ inputs.publish }}
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish
+        if: ${{ inputs.publish }}
         id: push
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
@@ -139,6 +188,7 @@ jobs:
           provenance: mode=max
 
       - name: Signed build record
+        if: ${{ inputs.publish }}
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-name: ${{ env.IMAGE }}
@@ -146,6 +196,7 @@ jobs:
           push-to-registry: true
 
       - name: GitHub release with the notes
+        if: ${{ inputs.publish }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ steps.v.outputs.version }}
