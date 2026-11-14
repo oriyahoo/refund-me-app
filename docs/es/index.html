@@ -1,0 +1,1007 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Refund-Me</title>
+<meta name="description" content="Reembolso de gastos para empresas israelíes: fotografía los tickets, aprueba con un toque y exporta a contabilidad. En tu propio servidor, en hebreo e inglés.">
+<link rel="alternate" hreflang="en" href="https://oriyahoo.github.io/refund-me-app/">
+<link rel="alternate" hreflang="fr" href="https://oriyahoo.github.io/refund-me-app/fr/">
+<link rel="alternate" hreflang="es" href="https://oriyahoo.github.io/refund-me-app/es/">
+<link rel="alternate" hreflang="he" href="https://oriyahoo.github.io/refund-me-app/he/">
+<link rel="alternate" hreflang="x-default" href="https://oriyahoo.github.io/refund-me-app/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&display=swap">
+<style>
+/* Refund-Me's own palette: the app's navy band, its amber accent, IBM Plex for text and amounts. */
+:root {
+  --paper: #f6f3ec;
+  --paper-2: #efe9dc;
+  --card: #ffffff;
+  --ink: #0f1b2d;
+  --ink-2: #3c4a60;
+  --muted: #5d6a7f;
+  --line: #ddd5c4;
+  --navy: #0f1b2d;
+  --navy-2: #13223a;
+  --navy-line: #263552;
+  --on-navy: #ffffff;
+  --on-navy-muted: #a8b3c7;
+  --amber: #e0a82e;
+  --amber-ink: #8a5a00;
+  --amber-soft: #fbefd2;
+  --ok: #198a4a;
+  --ok-soft: #dff3e6;
+  --warn-soft: #fdf0d5;
+  --bad: #b8432f;
+  --screen: #0e1116;
+  --screen-2: #161a21;
+  --screen-line: #262c36;
+  --screen-fg: #e8eaee;
+  --screen-muted: #aab0bb;
+  --shadow: 0 1px 2px rgb(15 27 45 / .06), 0 12px 32px -12px rgb(15 27 45 / .22);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0b1220; --paper-2: #101a2c; --card: #121d31; --ink: #eef1f6; --ink-2: #c9d1de;
+    --muted: #9aa6ba; --line: #22314b; --amber-ink: #f0c060; --amber-soft: #2c230f;
+    --ok-soft: #12321f; --warn-soft: #3a2a0c; --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 16px 40px -16px rgb(0 0 0 / .6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0b1220; --paper-2: #101a2c; --card: #121d31; --ink: #eef1f6; --ink-2: #c9d1de;
+  --muted: #9aa6ba; --line: #22314b; --amber-ink: #f0c060; --amber-soft: #2c230f;
+  --ok-soft: #12321f; --warn-soft: #3a2a0c; --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 16px 40px -16px rgb(0 0 0 / .6);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 400 16px/1.6 "IBM Plex Sans Hebrew", "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.mono { font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace; }
+a { color: inherit; }
+h1, h2, h3 { line-height: 1.15; text-wrap: balance; margin: 0; letter-spacing: -.01em; }
+p { margin: 0; }
+.wrap { max-width: 1160px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.eyebrow { font: 600 12px/1 "IBM Plex Mono", monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--amber-ink); }
+.lead { color: var(--ink-2); font-size: 18px; max-width: 62ch; }
+section { padding-block: 88px; }
+.section-head { display: grid; gap: 14px; margin-bottom: 44px; max-width: 760px; }
+.section-head h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 700; }
+
+/* Header */
+.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; gap: 24px; padding-block: 14px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; text-decoration: none; }
+.mark { width: 32px; height: 32px; border-radius: 9px; background: var(--navy); display: grid; place-items: center; color: var(--amber); font: 600 17px/1 "IBM Plex Mono", monospace; }
+.top nav { display: flex; gap: 22px; margin-inline-start: auto; font-size: 14px; }
+.top nav a { text-decoration: none; color: var(--ink-2); }
+.top nav a:hover { color: var(--ink); }
+.btn { display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 20px; border-radius: 12px; font-weight: 600; font-size: 15px; text-decoration: none; border: 1px solid transparent; transition: transform .15s, background .15s; }
+.btn:hover { transform: translateY(-1px); }
+.btn-amber { background: var(--amber); color: #1d1404; }
+.btn-ghost { border-color: var(--line); background: var(--card); }
+.btn-small { height: 38px; padding: 0 14px; font-size: 14px; }
+@media (max-width: 760px) { .top nav { display: none; } .top .lang { margin-inline-start: auto; } }
+@media (max-width: 400px) { .top .btn-small { display: none; } }
+
+/* Language switcher: a button with the current flag, a small menu of the four versions */
+.lang { position: relative; }
+.lang-btn { display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: 600 13px/1 "IBM Plex Sans Hebrew", system-ui, sans-serif; cursor: pointer; }
+.lang-btn:hover { border-color: var(--amber); }
+.lang-btn:focus-visible, .lang-menu a:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.flag { width: 20px; height: 14px; border-radius: 3px; flex: none; box-shadow: 0 0 0 1px rgb(0 0 0 / .12); overflow: hidden; display: block; }
+.lang-menu { position: absolute; inset-inline-end: 0; top: calc(100% + 6px); min-width: 170px; margin: 0; padding: 6px; list-style: none; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); z-index: 20; }
+.lang-menu[hidden] { display: none; }
+.lang-menu a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; text-decoration: none; color: var(--ink); font-size: 14px; }
+.lang-menu a:hover { background: var(--paper-2); }
+.lang-menu a[aria-current="true"] { font-weight: 600; background: var(--amber-soft); }
+.lang-btn .chev { width: 10px; height: 10px; opacity: .6; }
+
+/* Right-to-left (the Hebrew version): what logical properties don't mirror by themselves */
+[dir="rtl"] .receipt { text-align: right; }
+[dir="rtl"] .wiz-progress i { transform-origin: right; }
+[dir="rtl"] .chit { left: auto; right: calc(12% - 13px); animation-name: travel-rtl; }
+@keyframes travel-rtl { 0%, 6% { right: calc(12% - 13px) } 25%, 31% { right: calc(37.3% - 13px) } 50%, 56% { right: calc(62.6% - 13px) } 75%, 94% { right: calc(88% - 13px) } 100% { right: calc(12% - 13px); opacity: 0 } }
+[dir="rtl"] .pane { animation-name: pane-rtl; }
+@keyframes pane-rtl { 0% { opacity: 0; translate: -12px 0 } 2%, 11% { opacity: 1; translate: 0 0 } 12.5%, 100% { opacity: 0; translate: 12px 0 } }
+[dir="rtl"] .compare .arrow { transform: scaleX(-1); }
+/* The monospace face has no Hebrew letters: Hebrew labels use the text face, without spacing. */
+[dir="rtl"] .eyebrow, [dir="rtl"] .ledger-head, [dir="rtl"] .asks li b, [dir="rtl"] .gain .k, [dir="rtl"] .ba-side h3,
+[dir="rtl"] .server .boundary::before, [dir="rtl"] .step::before, [dir="rtl"] .app-band .label, [dir="rtl"] .facts b { letter-spacing: 0; font-family: "IBM Plex Sans Hebrew", system-ui, sans-serif; }
+
+/* Hero */
+.hero { padding-block: 72px 96px; overflow: hidden; }
+.hero .wrap { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 56px; align-items: center; }
+.hero h1 { font-size: clamp(38px, 6vw, 64px); font-weight: 700; }
+.hero h1 em { font-style: normal; color: var(--amber-ink); background: linear-gradient(transparent 62%, var(--amber-soft) 62%); }
+.hero .copy { display: grid; gap: 24px; min-width: 0; }
+.ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px; color: var(--muted); }
+.chips span { border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; background: var(--card); }
+@media (max-width: 900px) { .hero .wrap { grid-template-columns: 1fr; } }
+
+/* Phone mockup with the scanning animation */
+.stage { position: relative; display: grid; place-items: center; min-height: 560px; }
+.stage::before { content: ""; position: absolute; width: 420px; height: 420px; max-width: 100%; border-radius: 50%; background: radial-gradient(circle, var(--amber-soft), transparent 70%); }
+.phone { position: relative; width: 280px; max-width: 100%; aspect-ratio: 9 / 19; background: #05070b; border-radius: 42px; padding: 10px; box-shadow: var(--shadow), 0 0 0 1px rgb(255 255 255 / .06) inset; }
+.phone .scr { position: relative; height: 100%; border-radius: 33px; overflow: hidden; background: var(--screen); color: var(--screen-fg); display: flex; flex-direction: column; }
+.notch { position: absolute; top: 10px; left: 50%; translate: -50% 0; width: 86px; height: 24px; background: #05070b; border-radius: 14px; z-index: 3; }
+.app-band { background: var(--navy); padding: 46px 16px 14px; }
+.app-band .tabs { display: flex; gap: 12px; font-size: 11px; color: var(--on-navy-muted); border-bottom: 1px solid var(--navy-line); padding-bottom: 6px; }
+.app-band .tabs b { color: #fff; position: relative; }
+.app-band .tabs b::after { content: ""; position: absolute; left: 0; right: 0; bottom: -7px; height: 2px; border-radius: 2px; background: var(--amber); }
+.app-band .label { margin-top: 12px; font-size: 9px; letter-spacing: .08em; color: var(--on-navy-muted); }
+.app-band .total { font: 500 26px/1.2 "IBM Plex Mono", monospace; }
+.scan-area { position: relative; flex: 1; padding: 14px; display: grid; gap: 10px; align-content: start; }
+.receipt { position: relative; justify-self: center; width: 150px; background: #fbfaf6; color: #1b1b1b; padding: 12px 12px 18px; font: 500 9px/1.55 "IBM Plex Mono", monospace; text-align: left;
+  --zig: linear-gradient(-45deg, transparent 5px, #fbfaf6 0), linear-gradient(45deg, transparent 5px, #fbfaf6 0);
+  -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 10px 100%; mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 10px 100%;
+  animation: feed 9s ease-in-out infinite; }
+.receipt .r-title { font-weight: 600; font-size: 10px; text-align: center; }
+.receipt .r-row { display: flex; justify-content: space-between; }
+.receipt .r-total { border-top: 1px dashed #999; margin-top: 4px; padding-top: 4px; font-weight: 600; }
+.beam { position: absolute; left: 22px; right: 22px; top: 14px; height: 3px; border-radius: 3px; background: var(--amber); box-shadow: 0 0 18px 4px rgb(224 168 46 / .65); opacity: 0; animation: beam 9s ease-in-out infinite; }
+.fields { display: grid; gap: 6px; }
+.field { display: flex; justify-content: space-between; align-items: center; background: var(--screen-2); border: 1px solid var(--screen-line); border-radius: 8px; padding: 6px 9px; font-size: 10px; color: var(--screen-muted); opacity: 0; translate: 0 6px; animation: field 9s ease-out infinite; }
+.field b { color: var(--screen-fg); font: 500 10px "IBM Plex Mono", monospace; }
+.field:nth-child(1) { animation-delay: .25s; } .field:nth-child(2) { animation-delay: .5s; } .field:nth-child(3) { animation-delay: .75s; } .field:nth-child(4) { animation-delay: 1s; }
+.status { justify-self: start; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 6px; background: #12321f; color: #86d9a8; opacity: 0; animation: status 9s ease-out infinite; }
+.toast { position: absolute; z-index: 2; inset-inline-end: -18px; top: 120px; background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 14px; padding: 10px 14px; box-shadow: var(--shadow); font-size: 13px; display: flex; gap: 10px; align-items: center; animation: toast 9s ease-in-out infinite; }
+.toast i { width: 26px; height: 26px; border-radius: 50%; background: var(--ok); display: grid; place-items: center; color: #fff; font-style: normal; font-weight: 700; }
+.toast-2 { inset-inline-end: auto; inset-inline-start: -10px; top: auto; bottom: 34px; animation-name: toast2; }
+@media (min-width: 901px) { .toast-2 { inset-inline-start: -60px; } }
+.toast-2 i { background: var(--amber); color: #1d1404; }
+@keyframes feed { 0% { translate: 0 -120%; opacity: 0 } 8%, 92% { translate: 0 0; opacity: 1 } 100% { translate: 0 0; opacity: 0 } }
+@keyframes beam { 0%, 10% { top: 14px; opacity: 0 } 12% { opacity: 1 } 26% { top: 150px; opacity: 1 } 28%, 100% { top: 150px; opacity: 0 } }
+@keyframes field { 0%, 27% { opacity: 0; translate: 0 6px } 33%, 92% { opacity: 1; translate: 0 0 } 100% { opacity: 0 } }
+@keyframes status { 0%, 44% { opacity: 0; scale: .8 } 50%, 92% { opacity: 1; scale: 1 } 100% { opacity: 0 } }
+@keyframes toast { 0%, 52% { opacity: 0; translate: 0 10px } 58%, 92% { opacity: 1; translate: 0 0 } 100% { opacity: 0 } }
+@keyframes toast2 { 0%, 64% { opacity: 0; translate: 0 10px } 70%, 92% { opacity: 1; translate: 0 0 } 100% { opacity: 0 } }
+
+/* Mission: from paper to done */
+.mission { padding-block: 72px 80px; }
+.mission .section-head { margin-inline: auto; text-align: center; justify-items: center; }
+.mission .lead { margin-inline: auto; }
+.ba { display: grid; grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr); gap: 16px; align-items: stretch; }
+.ba-side { border-radius: 22px; padding: 22px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.ba-side h3 { font: 600 12px/1 "IBM Plex Mono", monospace; letter-spacing: .14em; text-transform: uppercase; margin: 0; }
+.ba-paper { background: var(--paper-2); border: 1px dashed var(--line); color: var(--muted); }
+.ba-paper h3 { color: var(--muted); }
+.ba-digital { background: var(--navy); color: var(--on-navy); box-shadow: var(--shadow); }
+.ba-digital h3 { color: var(--amber); }
+.desk { position: relative; height: 220px; }
+.slip { position: absolute; width: 74px; background: #fffdf6; border-radius: 3px; padding: 8px 7px 12px; box-shadow: 0 2px 6px rgb(0 0 0 / .12); display: grid; gap: 4px; animation: drift 7s ease-in-out infinite; }
+.slip::after { content: ""; position: absolute; left: 0; right: 0; bottom: -5px; height: 6px; background: linear-gradient(-45deg, transparent 4px, #fffdf6 0) 0 0 / 8px 8px, linear-gradient(45deg, transparent 4px, #fffdf6 0) 0 0 / 8px 8px; }
+.slip i { display: block; height: 4px; border-radius: 2px; background: #d8d2c4; }
+.slip i:nth-child(2) { width: 70%; } .slip i:last-child { width: 45%; background: #bdb5a3; }
+.s1 { top: 18px; inset-inline-start: 6%; rotate: -9deg; } .s2 { top: 70px; inset-inline-start: 24%; rotate: 7deg; animation-delay: -2s; } .s3 { top: 6px; inset-inline-start: 42%; rotate: -3deg; animation-delay: -4s; }
+@keyframes drift { 0%, 100% { translate: 0 0 } 50% { translate: 0 4px } }
+.envelope { position: absolute; bottom: 10px; inset-inline-start: 4%; width: 104px; height: 66px; background: #efe3c8; border-radius: 4px; box-shadow: 0 2px 6px rgb(0 0 0 / .12); overflow: hidden; rotate: -4deg; }
+.envelope::before { content: ""; position: absolute; inset: 0 0 auto; height: 40px; background: #e6d6b2; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.sheet { position: absolute; top: 34px; inset-inline-end: 4%; width: 120px; height: 104px; background: #fff; border-radius: 4px; box-shadow: 0 2px 6px rgb(0 0 0 / .12); rotate: 4deg; background-image: linear-gradient(#e3ebe1 1px, transparent 1px), linear-gradient(90deg, #e3ebe1 1px, transparent 1px); background-size: 100% 13px, 30px 100%; }
+.sheet::before { content: ""; position: absolute; inset: 0 0 auto; height: 13px; background: #cfe3cf; border-radius: 4px 4px 0 0; }
+.sticky { position: absolute; bottom: 14px; inset-inline-end: 10%; width: 92px; padding: 8px; background: #fde68a; color: #5b4300; font: 600 11px/1.3 "IBM Plex Sans Hebrew", system-ui, sans-serif; rotate: 5deg; box-shadow: 0 2px 6px rgb(0 0 0 / .12); }
+.ba-paper ul, .ba-digital ul { margin: 0; padding-inline-start: 18px; display: grid; gap: 6px; font-size: 14.5px; }
+.ba-arrow { display: grid; place-items: center; }
+.ba-arrow span { width: 52px; height: 52px; border-radius: 50%; background: var(--amber); color: #1d1404; display: grid; place-items: center; font-size: 24px; font-weight: 700; box-shadow: 0 6px 18px rgb(224 168 46 / .45); animation: nudge 2.4s ease-in-out infinite; }
+@keyframes nudge { 0%, 100% { translate: 0 0 } 50% { translate: 5px 0 } }
+[dir="rtl"] .ba-arrow span { animation-name: nudge-rtl; } [dir="rtl"] .ba-arrow b { display: inline-block; transform: scaleX(-1); }
+@keyframes nudge-rtl { 0%, 100% { translate: 0 0 } 50% { translate: -5px 0 } }
+.flow { display: grid; gap: 10px; }
+.flow div { display: flex; align-items: center; gap: 12px; background: var(--navy-2); border: 1px solid var(--navy-line); border-radius: 12px; padding: 10px 12px; font-size: 14.5px; }
+.flow .n { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--navy-line); display: grid; place-items: center; font: 600 12px "IBM Plex Mono", monospace; color: var(--on-navy-muted); flex: none; animation: lightup 8s infinite; }
+.flow small { margin-inline-start: auto; color: var(--on-navy-muted); font-size: 12px; }
+.flow div:nth-child(2) .n { animation-delay: 1.2s; } .flow div:nth-child(3) .n { animation-delay: 2.4s; } .flow div:nth-child(4) .n { animation-delay: 3.6s; }
+@keyframes lightup { 0%, 4% { background: transparent; border-color: var(--navy-line); color: var(--on-navy-muted) } 8%, 90% { background: var(--amber); border-color: var(--amber); color: #1d1404 } 100% { background: transparent; border-color: var(--navy-line); color: var(--on-navy-muted) } }
+.gains { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 28px; }
+.gain { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px; display: grid; gap: 8px; align-content: start; }
+.gain .k { font: 600 12px/1 "IBM Plex Mono", monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--amber-ink); }
+.gain h3 { font-size: 18px; }
+.gain p { color: var(--ink-2); font-size: 15px; }
+@media (max-width: 860px) { .ba { grid-template-columns: 1fr; } .ba-arrow span { rotate: 90deg; } .gains { grid-template-columns: 1fr; } }
+[dir="rtl"] .gain .k { letter-spacing: 0; }
+/* Stacked on phones the arrows point down; mirrored in Hebrew they need the opposite turn. */
+@media (max-width: 860px) { [dir="rtl"] .ba-arrow span { rotate: -90deg; } }
+@media (max-width: 700px) { [dir="rtl"] .compare .arrow { rotate: -90deg; } }
+
+/* Facts strip */
+.facts { background: var(--navy); color: var(--on-navy); padding-block: 34px; }
+.facts .wrap { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+.facts b { display: block; font: 500 30px/1.1 "IBM Plex Mono", monospace; color: var(--amber); }
+.facts span { font-size: 14px; color: var(--on-navy-muted); }
+@media (max-width: 760px) { .facts .wrap { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Old way / new way */
+.compare { display: grid; gap: 12px; }
+.compare .row { display: grid; grid-template-columns: minmax(0, 1fr) 36px minmax(0, 1fr); align-items: center; gap: 12px; }
+.compare .old, .compare .new { border-radius: 14px; padding: 16px 18px; font-size: 15px; }
+.compare .old { background: var(--paper-2); color: var(--muted); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--bad) 55%, transparent); }
+.compare .new { background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow); font-weight: 500; }
+.compare .arrow { text-align: center; color: var(--amber-ink); font-size: 20px; }
+@media (max-width: 700px) { .compare .row { grid-template-columns: 1fr; } .compare .arrow { rotate: 90deg; } }
+
+/* Steps as receipt tape */
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; counter-reset: s; }
+.step { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 16px 16px 4px 4px; padding: 22px 20px 30px; display: grid; gap: 10px; align-content: start; box-shadow: var(--shadow); }
+.step::before { counter-increment: s; content: "0" counter(s); font: 600 13px "IBM Plex Mono", monospace; color: var(--amber-ink); }
+.step::after { content: ""; position: absolute; left: -1px; right: -1px; bottom: -8px; height: 9px; background: linear-gradient(-45deg, transparent 6px, var(--card) 0) 0 0 / 12px 12px, linear-gradient(45deg, transparent 6px, var(--card) 0) 0 0 / 12px 12px; }
+.step h3 { font-size: 20px; }
+.step p { color: var(--ink-2); font-size: 15px; }
+.step .ico { width: 44px; height: 44px; border-radius: 12px; background: var(--amber-soft); color: var(--amber-ink); display: grid; place-items: center; }
+@media (max-width: 900px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .steps { grid-template-columns: 1fr; } }
+
+/* The approval trail */
+.trail { margin-top: 40px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px; overflow-x: auto; }
+.trail-track { position: relative; display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 8px; min-width: 560px; }
+.trail-track::before { content: ""; position: absolute; top: 21px; left: 12%; right: 12%; height: 2px; background: var(--line); }
+.node { position: relative; display: grid; justify-items: center; gap: 8px; text-align: center; font-size: 13px; color: var(--muted); }
+.node .dot { width: 44px; height: 44px; border-radius: 50%; background: var(--paper-2); border: 2px solid var(--line); display: grid; place-items: center; color: var(--amber-ink); z-index: 1; animation: lit 8s infinite; }
+.node b { color: var(--ink); font-size: 14px; }
+.node:nth-child(2) .dot { animation-delay: 2s; } .node:nth-child(3) .dot { animation-delay: 4s; } .node:nth-child(4) .dot { animation-delay: 6s; }
+.chit { position: absolute; top: 9px; left: 12%; width: 26px; height: 26px; border-radius: 6px; background: var(--amber); color: #1d1404; display: grid; place-items: center; font: 600 12px "IBM Plex Mono", monospace; z-index: 2; box-shadow: 0 4px 10px rgb(224 168 46 / .45); animation: travel 8s ease-in-out infinite; }
+@keyframes travel { 0%, 6% { left: calc(12% - 13px) } 25%, 31% { left: calc(37.3% - 13px) } 50%, 56% { left: calc(62.6% - 13px) } 75%, 94% { left: calc(88% - 13px) } 100% { left: calc(12% - 13px); opacity: 0 } }
+@keyframes lit { 0%, 3% { border-color: var(--amber); background: var(--amber-soft) } 20%, 100% { border-color: var(--line); background: var(--paper-2) } }
+
+/* Roles */
+.roles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.role { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px; display: grid; gap: 12px; align-content: start; }
+.role h3 { font-size: 19px; display: flex; align-items: center; gap: 10px; }
+.role h3 span { font: 600 11px "IBM Plex Mono", monospace; letter-spacing: .1em; color: var(--amber-ink); background: var(--amber-soft); border-radius: 6px; padding: 3px 7px; }
+.role ul { margin: 0; padding-inline-start: 18px; display: grid; gap: 6px; color: var(--ink-2); font-size: 14.5px; }
+@media (max-width: 1000px) { .roles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .roles { grid-template-columns: 1fr; } }
+
+/* Devices */
+.devices-band { background: var(--navy); color: var(--on-navy); }
+.devices-band .section-head h2 { color: #fff; }
+.devices-band .lead { color: var(--on-navy-muted); }
+.devices-band .eyebrow { color: var(--amber); }
+.devices { display: flex; align-items: flex-end; justify-content: center; gap: 28px; flex-wrap: wrap; margin-bottom: 48px; }
+.dev { background: #05070b; padding: 8px; box-shadow: 0 30px 60px -30px rgb(0 0 0 / .8); }
+.dev .s { background: var(--screen); border-radius: inherit; overflow: hidden; height: 100%; display: grid; }
+.dev-laptop { width: 520px; max-width: 100%; aspect-ratio: 16 / 10; border-radius: 14px 14px 4px 4px; position: relative; }
+.dev-laptop::after { content: ""; position: absolute; left: -7%; right: -7%; bottom: -14px; height: 14px; background: linear-gradient(#2b3240, #151a22); border-radius: 0 0 14px 14px; }
+.dev-laptop .s { grid-template-columns: 26% 1fr; }
+.dev-tablet { width: 230px; aspect-ratio: 3 / 4; border-radius: 22px; }
+.dev-tablet .s { grid-template-rows: 30% 1fr; border-radius: 15px; }
+.dev-phone { width: 120px; aspect-ratio: 9 / 19; border-radius: 22px; }
+.dev-phone .s { grid-template-rows: 34% 1fr 13%; border-radius: 15px; }
+.side { background: var(--navy-2); padding: 10px 8px; display: grid; gap: 6px; align-content: start; }
+.side i { height: 7px; border-radius: 4px; background: var(--navy-line); }
+.side i:first-child { background: var(--amber); width: 60%; margin-bottom: 6px; }
+.main { padding: 10px; display: grid; gap: 8px; align-content: start; }
+.bandbox { background: var(--navy-2); border-radius: 8px; padding: 8px; display: grid; gap: 5px; }
+.bandbox i, .rowsx i { display: block; height: 6px; border-radius: 3px; background: var(--navy-line); }
+.bandbox i.a { width: 40%; height: 11px; background: #3a4a68; }
+.split { display: grid; grid-template-columns: 1fr 1.4fr; gap: 8px; }
+.rowsx { background: var(--screen-2); border: 1px solid var(--screen-line); border-radius: 7px; padding: 7px; display: grid; gap: 6px; }
+.rowsx i:nth-child(odd) { width: 75%; }
+.rowsx.hi i:first-child { background: var(--amber); }
+.tabbar { background: var(--navy-2); display: flex; justify-content: space-around; align-items: center; }
+.tabbar i { width: 12px; height: 12px; border-radius: 4px; background: var(--navy-line); }
+.tabbar i:first-child { background: var(--amber); }
+.dev-label { text-align: center; color: var(--on-navy-muted); font-size: 13px; margin-top: 22px; }
+.dev-col { display: grid; justify-items: center; }
+.dev-points { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.dev-point { background: var(--navy-2); border: 1px solid var(--navy-line); border-radius: 16px; padding: 20px; display: grid; gap: 8px; align-content: start; }
+.dev-point h3 { font-size: 17px; color: #fff; }
+.dev-point p { color: var(--on-navy-muted); font-size: 14.5px; }
+@media (max-width: 900px) { .dev-points { grid-template-columns: 1fr; } .dev-laptop { width: 100%; } }
+
+/* Install-as-app mini animation */
+.homescreen { display: grid; grid-template-columns: repeat(4, 22px); gap: 9px; justify-content: center; padding: 12px 0; }
+.homescreen i { width: 22px; height: 22px; border-radius: 6px; background: var(--navy-line); }
+.homescreen i.app { background: var(--navy); border: 1.5px solid var(--amber); display: grid; place-items: center; color: var(--amber); font: 600 11px/1 "IBM Plex Mono", monospace; font-style: normal; animation: pop 5s ease-out infinite; }
+@keyframes pop { 0%, 30% { scale: 0; } 40% { scale: 1.25; } 46%, 100% { scale: 1; } }
+
+/* AI assistants: a chat that plays out */
+.ai { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: center; }
+.chat { background: var(--card); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); padding: 18px; display: grid; gap: 12px; min-height: 380px; align-content: start; }
+.chat-top { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.chat-top .led { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+.bubble { max-width: 88%; padding: 10px 14px; border-radius: 16px; font-size: 14.5px; line-height: 1.5; opacity: 0; translate: 0 8px; animation: say 14s ease-out infinite; }
+.bubble.me { justify-self: end; background: var(--amber); color: #1d1404; font-weight: 500; border-end-end-radius: 4px; }
+.bubble.bot { justify-self: start; background: var(--paper-2); border-end-start-radius: 4px; }
+.bubble .mono { font-size: 13px; }
+.bubble .tool { display: inline-block; font: 500 11px "IBM Plex Mono", monospace; color: var(--amber-ink); background: var(--amber-soft); border-radius: 6px; padding: 1px 6px; margin-bottom: 4px; }
+.bubble .ok { color: var(--ok); font-weight: 600; }
+.chat .b1 { animation-delay: .3s; } .chat .b2 { animation-delay: 1.6s; } .chat .b3 { animation-delay: 4.2s; } .chat .b4 { animation-delay: 5.4s; }
+@keyframes say { 0% { opacity: 0; translate: 0 8px } 4%, 92% { opacity: 1; translate: 0 0 } 100% { opacity: 0 } }
+.asks { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.asks li { display: grid; grid-template-columns: 96px 1fr; gap: 12px; font-size: 15px; color: var(--ink-2); }
+.asks li b { font: 600 12px/1.9 "IBM Plex Mono", monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--amber-ink); }
+.guard { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 24px; }
+.guard div { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 14px; color: var(--ink-2); }
+.guard b { display: block; color: var(--ink); font-size: 14.5px; }
+@media (max-width: 900px) { .ai { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .guard { grid-template-columns: 1fr; } .asks li { grid-template-columns: 1fr; gap: 2px; } }
+
+/* Data stays yours */
+.own { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: center; }
+.own ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.own li { display: grid; grid-template-columns: 28px 1fr; gap: 12px; }
+.own li b { display: block; }
+.own li span { color: var(--ink-2); font-size: 15px; }
+.tick { width: 28px; height: 28px; border-radius: 50%; background: var(--ok-soft); color: var(--ok); display: grid; place-items: center; font-weight: 700; }
+.server { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 28px; box-shadow: var(--shadow); display: grid; gap: 14px; }
+.server .boundary { border: 2px dashed color-mix(in srgb, var(--amber) 70%, transparent); border-radius: 16px; padding: 18px; display: grid; gap: 10px; position: relative; }
+.server .boundary::before { content: "Your server"; position: absolute; top: -11px; inset-inline-start: 14px; background: var(--card); padding: 0 8px; font: 600 11px "IBM Plex Mono", monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--amber-ink); }
+.box { display: flex; align-items: center; gap: 10px; background: var(--paper-2); border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 500; }
+.box small { margin-inline-start: auto; color: var(--muted); font-weight: 400; font-size: 12px; }
+.cloud { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; padding: 4px 6px; }
+.cloud .sw { width: 34px; height: 20px; border-radius: 999px; background: var(--line); position: relative; flex: none; }
+.cloud .sw::after { content: ""; position: absolute; top: 3px; inset-inline-start: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--card); }
+@media (max-width: 860px) { .own { grid-template-columns: 1fr; } }
+
+/* Single sign-on */
+.sso { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: center; }
+.signin { background: var(--card); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); padding: 28px; display: grid; gap: 12px; max-width: 420px; justify-self: center; width: 100%; }
+.signin .mark { margin-bottom: 4px; }
+.signin h3 { font-size: 20px; }
+.signin p { color: var(--muted); font-size: 14px; margin-bottom: 6px; }
+.idp { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-weight: 600; font-size: 15px; background: var(--card); }
+.idp.hl { border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-soft); animation: pick 6s ease-in-out infinite; }
+.idp .sq { width: 22px; height: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; flex: none; }
+.idp .sq i { background: var(--ink-2); border-radius: 1px; }
+.idp .g { width: 22px; height: 22px; border-radius: 50%; border: 4px solid var(--ink-2); border-right-color: transparent; flex: none; }
+.idp small { margin-inline-start: auto; font-weight: 400; color: var(--muted); font-size: 12px; }
+.or { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 12px; }
+.or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.mailrow { display: flex; gap: 8px; }
+.mailrow span { flex: 1; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; color: var(--muted); font-size: 14px; }
+.mailrow b { border-radius: 10px; padding: 10px 14px; font-size: 14px; background: var(--navy); color: #fff; }
+@keyframes pick { 0%, 100% { box-shadow: 0 0 0 3px var(--amber-soft) } 50% { box-shadow: 0 0 0 7px var(--amber-soft) } }
+.sso-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.sso-list li { display: grid; grid-template-columns: 28px 1fr; gap: 12px; color: var(--ink-2); font-size: 15px; }
+.sso-list b { color: var(--ink); display: block; }
+@media (max-width: 900px) { .sso { grid-template-columns: 1fr; } }
+
+/* Security */
+.sec-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.sec { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px; display: grid; gap: 10px; align-content: start; }
+.sec .ico { width: 42px; height: 42px; border-radius: 12px; background: var(--navy); color: var(--amber); display: grid; place-items: center; }
+.sec h3 { font-size: 18px; }
+.sec p { color: var(--ink-2); font-size: 15px; }
+@media (max-width: 960px) { .sec-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .sec-grid { grid-template-columns: 1fr; } }
+
+/* Segregation of duties: a ledger */
+.ledger { background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow); }
+.ledger-head, .ledger-row { display: grid; grid-template-columns: 40px minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; padding: 16px 22px; align-items: start; }
+.ledger-head { background: var(--navy); color: var(--on-navy-muted); font: 600 12px "IBM Plex Mono", monospace; letter-spacing: .1em; text-transform: uppercase; }
+.ledger-row { border-top: 1px solid var(--line); }
+.ledger-row:nth-child(even) { background: color-mix(in srgb, var(--paper-2) 45%, transparent); }
+.ledger-row .n { font: 600 13px "IBM Plex Mono", monospace; color: var(--amber-ink); padding-top: 2px; }
+.ledger-row b { display: block; margin-bottom: 2px; }
+.ledger-row .ctl span { color: var(--ink-2); font-size: 14.5px; }
+.ledger-row .prev { color: var(--ink-2); font-size: 14.5px; display: flex; gap: 8px; }
+.ledger-row .prev::before { content: "✕"; color: var(--bad); font-weight: 700; flex: none; }
+@media (max-width: 760px) {
+  .ledger-head { display: none; }
+  .ledger-row { grid-template-columns: 32px minmax(0, 1fr); }
+  .ledger-row .prev { grid-column: 2; }
+}
+
+/* The setup wizard: a browser window that walks through the steps */
+.wiz-wrap { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 48px; align-items: center; }
+.wiz-points { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.wiz-points li { display: grid; grid-template-columns: 28px 1fr; gap: 12px; color: var(--ink-2); font-size: 15px; }
+.wiz-points b { color: var(--ink); display: block; }
+.win { background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; min-width: 0; }
+.win-bar { display: flex; align-items: center; gap: 6px; padding: 10px 14px; background: var(--paper-2); border-bottom: 1px solid var(--line); }
+.win-bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+.win-bar span { margin-inline-start: 12px; flex: 1; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 3px 10px; font: 500 11.5px "IBM Plex Mono", monospace; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wiz { display: grid; grid-template-columns: 170px minmax(0, 1fr); min-height: 340px; }
+.wiz-rail { background: var(--navy); color: var(--on-navy-muted); padding: 16px 12px; display: grid; gap: 4px; align-content: start; font-size: 12.5px; }
+.wiz-rail .h { color: #fff; font-weight: 600; font-size: 13px; margin: 0 6px 8px; }
+.wiz-rail .st { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; animation: rail 21s infinite; }
+.wiz-rail .st b { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--navy-line); display: grid; place-items: center; font: 600 10px "IBM Plex Mono", monospace; flex: none; animation: railnum 21s infinite; }
+.wiz-rail .st small { margin-inline-start: auto; font-size: 10px; opacity: .7; }
+.wiz-body { position: relative; padding: 20px 22px; }
+.pane { position: absolute; inset: 20px 22px; display: grid; gap: 10px; align-content: start; opacity: 0; animation: pane 21s infinite; }
+.pane h4 { margin: 0; font-size: 17px; }
+.pane p { margin: 0 0 4px; font-size: 13px; color: var(--muted); }
+.opt { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-size: 13.5px; }
+.opt small { margin-inline-start: auto; color: var(--muted); font-size: 11.5px; }
+.opt.on { border-color: var(--amber); background: var(--amber-soft); }
+.opt .r { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--muted); flex: none; }
+.opt.on .r { border: 4px solid var(--amber); }
+.inp { border: 1px solid var(--line); border-radius: 9px; padding: 7px 11px; font-size: 13px; color: var(--ink-2); display: flex; justify-content: space-between; }
+.inp small { color: var(--muted); }
+.btnx { justify-self: start; margin-top: 4px; background: var(--amber); color: #1d1404; border-radius: 9px; padding: 7px 14px; font-size: 13px; font-weight: 600; }
+.later { justify-self: start; font-size: 12px; color: var(--muted); }
+.swatches { display: flex; gap: 8px; }
+.swatches i { width: 26px; height: 26px; border-radius: 8px; }
+.done { display: grid; justify-items: center; align-content: center; text-align: center; gap: 10px; inset: 20px 22px; }
+.done .big { width: 56px; height: 56px; border-radius: 50%; background: var(--ok); color: #fff; display: grid; place-items: center; font-size: 28px; font-weight: 700; }
+.wiz-progress { height: 3px; background: var(--line); }
+.wiz-progress i { display: block; height: 100%; background: var(--amber); transform-origin: left; animation: prog 21s linear infinite; }
+/* 8 frames of 2.625s: seven steps, then "ready" */
+.f1 { animation-delay: 0s !important; } .f2 { animation-delay: 2.625s !important; } .f3 { animation-delay: 5.25s !important; } .f4 { animation-delay: 7.875s !important; }
+.f5 { animation-delay: 10.5s !important; } .f6 { animation-delay: 13.125s !important; } .f7 { animation-delay: 15.75s !important; } .f8 { animation-delay: 18.375s !important; }
+@keyframes pane { 0% { opacity: 0; translate: 12px 0 } 2%, 11% { opacity: 1; translate: 0 0 } 12.5%, 100% { opacity: 0; translate: -12px 0 } }
+@keyframes rail { 0%, 12.4% { background: var(--navy-2); color: #fff } 12.5%, 100% { background: transparent; color: var(--on-navy-muted) } }
+@keyframes railnum { 0%, 12.4% { border-color: var(--amber); color: var(--amber) } 12.5%, 100% { border-color: var(--navy-line); color: inherit } }
+@keyframes prog { from { transform: scaleX(0) } to { transform: scaleX(1) } }
+@media (max-width: 960px) { .wiz-wrap { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .wiz { grid-template-columns: 1fr; } .wiz-rail { grid-template-columns: repeat(7, minmax(0, 1fr)); padding: 10px; } .wiz-rail .h { display: none; } .wiz-rail .st { font-size: 0; justify-content: center; padding: 6px 0; } .wiz-rail .st b { width: 24px; height: 24px; font-size: 11px; } .wiz-rail .st small { display: none; } .wiz-body { min-height: 300px; } }
+
+/* Install */
+.install { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+.term { background: #0b0f16; color: #d7dde8; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); min-width: 0; }
+.term .bar { display: flex; gap: 6px; padding: 12px 14px; background: #141a24; }
+.term .bar i { width: 11px; height: 11px; border-radius: 50%; background: #3a4352; }
+.term .bar i:first-child { background: #e66767; } .term .bar i:nth-child(2) { background: var(--amber); } .term .bar i:nth-child(3) { background: #3fbf7f; }
+.term pre { margin: 0; padding: 18px 20px 22px; white-space: pre-wrap; overflow-wrap: anywhere; font: 400 13.5px/1.75 "IBM Plex Mono", monospace; }
+.term .c { color: #7d8799; }
+.term .p { color: var(--amber); }
+.req { display: grid; gap: 12px; }
+.req li { color: var(--ink-2); }
+.req ul { margin: 0; padding-inline-start: 20px; display: grid; gap: 8px; }
+.wizard { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.wizard span { font-size: 13px; border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 5px 12px; }
+.wizard span b { font-family: "IBM Plex Mono", monospace; color: var(--amber-ink); margin-inline-end: 6px; }
+@media (max-width: 860px) { .install { grid-template-columns: 1fr; } }
+
+/* Closing band */
+.cta-band { background: var(--navy); color: var(--on-navy); text-align: center; }
+.cta-band .wrap { display: grid; justify-items: center; gap: 22px; }
+.cta-band h2 { font-size: clamp(30px, 5vw, 46px); color: #fff; }
+.cta-band p { color: var(--on-navy-muted); max-width: 56ch; }
+footer { padding-block: 28px; font-size: 13px; color: var(--muted); }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; }
+footer a { color: var(--ink-2); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .field, .status, .toast, .bubble { opacity: 1; translate: 0 0; }
+  .flow .n { background: var(--amber); border-color: var(--amber); color: #1d1404; }
+  .pane { display: none; } .pane.f1 { display: grid; opacity: 1; position: static; } .wiz-rail .st.f1 { background: var(--navy-2); color: #fff; }
+  .beam { display: none; }
+  html { scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#"><span class="mark">€</span>Refund-Me</a>
+    <nav aria-label="Secciones">
+      <a href="#how">Cómo funciona</a>
+      <a href="#devices">Dispositivos</a>
+      <a href="#ai">Asistentes de IA</a>
+      <a href="#sso">SSO</a>
+      <a href="#security">Seguridad</a>
+      <a href="#controls">Controles</a>
+      <a href="#install">Instalar</a>
+      <a href="license.html">Licencia</a>
+    </nav>
+    <div class="lang">
+      <button type="button" class="lang-btn" aria-expanded="false" aria-controls="lang-menu" aria-label="Idioma: español"><svg class="flag" viewBox="0 0 3 2" aria-hidden="true"><rect width="3" height="2" fill="#AA151B"/><rect y=".5" width="3" height="1" fill="#F1BF00"/></svg><span>ES</span><svg class="chev" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+      <ul class="lang-menu" id="lang-menu" hidden>
+        <li><a href="../" hreflang="en"><svg class="flag" viewBox="0 0 60 42" aria-hidden="true"><rect width="60" height="42" fill="#012169"/><path d="M0 0l60 42M60 0L0 42" stroke="#fff" stroke-width="9"/><path d="M0 0l60 42M60 0L0 42" stroke="#C8102E" stroke-width="3"/><path d="M30 0v42M0 21h60" stroke="#fff" stroke-width="14"/><path d="M30 0v42M0 21h60" stroke="#C8102E" stroke-width="8"/></svg>Inglés</a></li>
+        <li><a href="../fr/" hreflang="fr"><svg class="flag" viewBox="0 0 3 2" aria-hidden="true"><rect width="1" height="2" fill="#002654"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#CE1126"/></svg>Francés</a></li>
+        <li><a href="../es/" hreflang="es" aria-current="true"><svg class="flag" viewBox="0 0 3 2" aria-hidden="true"><rect width="3" height="2" fill="#AA151B"/><rect y=".5" width="3" height="1" fill="#F1BF00"/></svg>Español</a></li>
+        <li><a href="../he/" hreflang="he"><svg class="flag" viewBox="0 0 220 160" aria-hidden="true"><rect width="220" height="160" fill="#fff"/><rect y="15" width="220" height="25" fill="#0038b8"/><rect y="120" width="220" height="25" fill="#0038b8"/><path d="M110 52l24 42h-48zM110 108l-24-42h48z" fill="none" stroke="#0038b8" stroke-width="5.5"/></svg>Hebreo</a></li>
+      </ul>
+    </div>
+    <a class="btn btn-amber btn-small" href="#install">Empezar</a>
+  </div>
+</header>
+
+<main>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="copy">
+        <span class="eyebrow">Reembolso de gastos · hebreo e inglés</span>
+        <h1>Fotografía el ticket.<br><em>Recupera tu dinero.</em></h1>
+        <p class="lead">Los empleados fotografían sus tickets con el móvil. Refund-Me los lee, los responsables y contabilidad aprueban con un toque, y el mes llega a tu sistema contable. En tu propio servidor, así que tus datos nunca salen de la empresa.</p>
+        <div class="ctas">
+          <a class="btn btn-amber" href="#install">Instalar en tu servidor</a>
+          <a class="btn btn-ghost" href="#how">Ver cómo funciona</a>
+        </div>
+        <div class="chips"><span>Móvil, tableta y ordenador</span><span>Acceso con Microsoft y Google</span><span>Lee tickets en hebreo</span><span>Funciona con asistentes de IA</span><span>Sin necesidad de internet</span><span>Excel · CSV · PDF</span></div>
+      </div>
+
+      <div class="stage" aria-label="Ilustración: se escanea un ticket en el móvil, sus datos se rellenan y queda listo para entregar">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="scr">
+            <div class="app-band">
+              <div class="tabs"><span>sep</span><span>oct</span><b>Noviembre</b></div>
+              <div class="label">TOTAL DE NOVIEMBRE</div>
+              <div class="total">1.284,60 €</div>
+            </div>
+            <div class="scan-area">
+              <div class="receipt" aria-hidden="true">
+                <div class="r-title">CAFÉ LA VIÑA S.L.</div>
+                <div>NIF 514000000</div>
+                <div>04/11/2026 13:22</div>
+                <div class="r-row"><span>Ensalada</span><span>118,00</span></div>
+                <div class="r-row"><span>Café</span><span>40,05</span></div>
+                <div class="r-row"><span>IVA 18 %</span><span>28,45</span></div>
+                <div class="r-row r-total"><span>TOTAL</span><span>186,50</span></div>
+              </div>
+              <div class="beam"></div>
+              <div class="fields">
+                <div class="field">Proveedor <b>Café La Viña</b></div>
+                <div class="field">Fecha <b>04/11/2026</b></div>
+                <div class="field">IVA <b>28,45 €</b></div>
+                <div class="field">Total <b>186,50 €</b></div>
+              </div>
+              <span class="status">Listo para entregar</span>
+            </div>
+          </div>
+        </div>
+        <div class="toast"><i>✓</i><div><b>Aprobado</b><br><span style="color:var(--muted);font-size:12px">por contabilidad</span></div></div>
+        <div class="toast toast-2"><i>€</i><div><b>Noviembre exportado</b><br><span style="color:var(--muted);font-size:12px">Excel, con códigos contables</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mission: what Refund-Me came to solve -->
+  <section id="mission" class="mission">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Por qué lo creamos</span>
+        <h2>Adiós al papeleo</h2>
+        <p class="lead">Refund-Me nació para acabar con el registro y la entrega manual de gastos, y llevarlos a una nueva era digital que hace más eficiente a cada persona y a toda la oficina.</p>
+      </div>
+      <div class="ba">
+        <div class="ba-side ba-paper">
+          <h3>Antes</h3>
+          <div class="desk" aria-hidden="true">
+            <div class="slip s1"><i></i><i></i><i></i><i></i></div>
+            <div class="slip s2"><i></i><i></i><i></i></div>
+            <div class="slip s3"><i></i><i></i><i></i><i></i></div>
+            <div class="sheet"></div>
+            <div class="envelope"></div>
+            <div class="sticky">¡Gastos para el viernes!</div>
+          </div>
+          <ul>
+            <li>Tickets de papel guardados en carteras y sobres</li>
+            <li>Datos tecleados en hojas de cálculo, formularios impresos y firmados</li>
+            <li>Recordatorios por email a fin de mes y vuelta a teclear en contabilidad</li>
+          </ul>
+        </div>
+        <div class="ba-arrow" aria-hidden="true"><span><b>→</b></span></div>
+        <div class="ba-side ba-digital">
+          <h3>Con Refund-Me</h3>
+          <div class="flow">
+            <div><span class="n">1</span>Fotografía el ticket<small>cámara del móvil</small></div>
+            <div><span class="n">2</span>La app lo lee<small>datos rellenados</small></div>
+            <div><span class="n">3</span>Aprobado en el móvil<small>responsable, contabilidad</small></div>
+            <div><span class="n">4</span>El mes llega a contabilidad<small>Excel, CSV, PDF</small></div>
+          </div>
+          <ul>
+            <li>Un único flujo digital, del mostrador a la contabilidad</li>
+            <li>Sin papel, sin volver a teclear</li>
+          </ul>
+        </div>
+      </div>
+      <div class="gains">
+        <div class="gain"><span class="k">El problema</span><h3>Los gastos se siguen haciendo a mano</h3><p>Tickets en papel, hojas de cálculo, firmas, recordatorios y volver a teclear: horas de trabajo que no aportan nada.</p></div>
+        <div class="gain"><span class="k">Para cada persona</span><h3>Un minuto por ticket</h3><p>Fotografíalo al pagar en lugar de pasar una tarde a fin de mes. No se pierde nada.</p></div>
+        <div class="gain"><span class="k">Para la oficina</span><h3>Un cierre más rápido y limpio</h3><p>Los responsables aprueban con un toque; contabilidad cierra el mes más rápido, con menos errores y un registro completo.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Facts -->
+  <div class="facts">
+    <div class="wrap">
+      <div><b>4 pasos</b><span>Fotografiar, revisar, aprobar, exportar</span></div>
+      <div><b>2 idiomas</b><span>Hebreo e inglés, con derecha a izquierda bien hecha</span></div>
+      <div><b>4 bases de datos</b><span>Integrada, PostgreSQL, SQL Server, MySQL</span></div>
+      <div><b>0 bytes</b><span>salen de tu servidor salvo que actives la IA en la nube</span></div>
+    </div>
+  </div>
+
+  <!-- Why -->
+  <section id="why">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Por qué Refund-Me</span>
+        <h2>Fin de mes sin perseguir papeles</h2>
+        <p class="lead">Todo lo que hace los gastos lentos y propensos a errores, resuelto por ti.</p>
+      </div>
+      <div class="compare">
+        <div class="row"><div class="old">Tickets perdidos en carteras y asientos del coche</div><div class="arrow" aria-hidden="true">→</div><div class="new">Una foto en el momento de pagar. La app la guarda.</div></div>
+        <div class="row"><div class="old">Teclear importes, fechas y números de IVA en Excel</div><div class="arrow" aria-hidden="true">→</div><div class="new">La app lee el comercio, su número, la fecha, el total, el IVA y el número del ticket</div></div>
+        <div class="row"><div class="old">Emails de «¿Te llegaron mis gastos?»</div><div class="arrow" aria-hidden="true">→</div><div class="new">Cada uno ve en qué punto está su mes</div></div>
+        <div class="row"><div class="old">Perseguir a la gente a fin de mes</div><div class="arrow" aria-hidden="true">→</div><div class="new">Recordatorios automáticos antes del plazo, un clic para avisar a todos</div></div>
+        <div class="row"><div class="old">Revisar cada ticket a ojo</div><div class="arrow" aria-hidden="true">→</div><div class="new">Avisos de posibles duplicados, importes por encima del límite y datos que faltan</div></div>
+        <div class="row"><div class="old">Volver a teclearlo todo en el sistema contable</div><div class="arrow" aria-hidden="true">→</div><div class="new">Exporta el mes con los códigos contables, listo para importar</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how" style="background:var(--paper-2)">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Cómo funciona</span>
+        <h2>Del mostrador de la cafetería al sistema contable</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 1 2-2h2l2-2h6l2 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          <h3>Fotografiar</h3>
+          <p>Escanea tickets uno tras otro con la cámara del móvil, o sube fotos y PDF.</p>
+        </div>
+        <div class="step">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg></div>
+          <h3>Revisar</h3>
+          <p>Los datos se rellenan solos. Corrige lo que se haya leído mal y entrega el mes.</p>
+        </div>
+        <div class="step">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M16 11l2 2 4-4"/></svg></div>
+          <h3>Aprobar</h3>
+          <p>El responsable (si quieres ese paso) y luego contabilidad. Lo que esté mal vuelve con una nota.</p>
+        </div>
+        <div class="step">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></div>
+          <h3>Exportar</h3>
+          <p>Cierra el mes: Excel o CSV para contabilidad y un PDF con tu marca por empleado, con fotos.</p>
+        </div>
+      </div>
+
+      <div class="trail" aria-label="Ilustración: un ticket pasa del empleado al responsable, a contabilidad y a la exportación">
+        <div class="trail-track">
+          <div class="chit" aria-hidden="true">€</div>
+          <div class="node"><span class="dot"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 1 2-2h2l2-2h6l2 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="4"/></svg></span><b>Empleado</b>entrega el mes</div>
+          <div class="node"><span class="dot"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><b>Responsable</b>aprueba al equipo</div>
+          <div class="node"><span class="dot"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span><b>Contabilidad</b>aprueba y cierra</div>
+          <div class="node"><span class="dot"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><b>Exportar</b>al sistema contable</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Roles -->
+  <section id="roles">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Algo para cada uno</span>
+        <h2>Cada persona ve lo que necesita, y solo eso</h2>
+      </div>
+      <div class="roles">
+        <div class="role"><h3>Empleados <span>01</span></h3><ul><li>Escanea muchos tickets seguidos</li><li>Fotos, PDF y HEIC de iPhone</li><li>El mes de un vistazo: listo, te necesita, entregado</li><li>Los tickets devueltos dicen qué corregir</li><li>Tus propias estadísticas</li></ul></div>
+        <div class="role"><h3>Responsables <span>02</span></h3><ul><li>Un email por empleado y mes</li><li>Aprueba un mes o tickets sueltos</li><li>Devuelve con una nota</li><li>Estadísticas del equipo</li></ul></div>
+        <div class="role"><h3>Contabilidad <span>03</span></h3><ul><li>Los meses de todos en una página, con avisos</li><li>Aprueba uno, varios o un mes</li><li>Cerrar, reabrir, exportar</li><li>Tipos de gasto con códigos contables y límites mensuales</li><li>Avisa a todos con un clic</li></ul></div>
+        <div class="role"><h3>Administradores <span>04</span></h3><ul><li>Tu nombre, logotipo y colores en todas partes</li><li>Acceso con Microsoft, Google, enlace por email o contraseña</li><li>Registro de actividad, alertas, copias de seguridad</li><li>Asistentes de IA activados o no, por rol</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Devices -->
+  <section id="devices" class="devices-band">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">En todos los dispositivos</span>
+        <h2>Primero el móvil. Igual de bien en pantalla grande.</h2>
+        <p class="lead">Una sola app que se adapta a la pantalla: un móvil cómodo para el pulgar, una tableta amplia y una vista lado a lado en el escritorio.</p>
+      </div>
+      <div class="devices" aria-hidden="true">
+        <div class="dev-col">
+          <div class="dev dev-laptop"><div class="s">
+            <div class="side"><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="main">
+              <div class="bandbox"><i class="a"></i><i></i><i></i></div>
+              <div class="split"><div class="rowsx hi"><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="rowsx"><i></i><i></i><i></i><i></i></div></div>
+            </div>
+          </div></div>
+          <div class="dev-label">Ordenador: lista y ticket lado a lado</div>
+        </div>
+        <div class="dev-col">
+          <div class="dev dev-tablet"><div class="s">
+            <div class="bandbox" style="border-radius:0"><i class="a"></i><i></i></div>
+            <div class="main"><div class="rowsx hi"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+          </div></div>
+          <div class="dev-label">Tableta</div>
+        </div>
+        <div class="dev-col">
+          <div class="dev dev-phone"><div class="s">
+            <div class="bandbox" style="border-radius:0"><i class="a"></i><i></i></div>
+            <div class="main"><div class="rowsx hi"><i></i><i></i><i></i></div></div>
+            <div class="tabbar"><i></i><i></i><i></i></div>
+          </div></div>
+          <div class="dev-label">Móvil: menú abajo</div>
+        </div>
+      </div>
+      <div class="dev-points">
+        <div class="dev-point">
+          <h3>Instálala como una app</h3>
+          <div class="homescreen" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i class="app">€</i><i></i></div>
+          <p>Añádela a la pantalla de inicio en iPhone, iPad o Android: pantalla completa, su propio icono, sin tienda de apps. La página de instalación de la app muestra cómo, paso a paso.</p>
+        </div>
+        <div class="dev-point">
+          <h3>Hecha para el pulgar y el ratón</h3>
+          <p>Botones grandes y la cámara a un toque en el móvil. Mantén pulsado un ticket para abrir el mismo menú que el clic derecho en el ordenador. Los encabezados y filtros siguen a la vista al desplazarte.</p>
+        </div>
+        <div class="dev-point">
+          <h3>Hebreo, inglés, tus colores</h3>
+          <p>Cada persona en su idioma, con pantallas de derecha a izquierda de verdad. Claro, oscuro, marino o cálido, igual en todos los dispositivos. Tu logotipo en pantallas e informes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI assistants (MCP) -->
+  <section id="ai">
+    <div class="wrap ai">
+      <div>
+        <div class="section-head" style="margin-bottom:24px">
+          <span class="eyebrow">Pregunta a tu asistente de IA</span>
+          <h2>Tus gastos, a una pregunta de distancia</h2>
+          <p class="lead">Conecta Claude, Cursor, VS Code o cualquier asistente compatible con MCP y pregunta con tus palabras. Actúa como tú, con tus permisos, y nada cambia sin tu visto bueno.</p>
+        </div>
+        <ul class="asks">
+          <li><b>Empleado</b><span>«¿Qué me falta todavía en junio?» · «Entrega mi mes.»</span></li>
+          <li><b>Responsable</b><span>«¿Qué está pendiente de mi aprobación?»</span></li>
+          <li><b>Contabilidad</b><span>«¿Cuánto gastó Ventas en combustible este año?» · «Exporta noviembre a Excel.»</span></li>
+          <li><b>Administrador</b><span>«¿Quién cambió la configuración esta semana?»</span></li>
+        </ul>
+        <div class="guard">
+          <div><b>Tú, no más</b>Un token personal con exactamente tus permisos.</div>
+          <div><b>Vista previa, luego confirmación</b>Entregar, aprobar y cerrar siempre preguntan antes.</div>
+          <div><b>Tus límites</b>Tokens de solo lectura, fechas de caducidad, revoca uno o todos.</div>
+          <div><b>Apagado hasta que lo digas</b>Los administradores eligen quién puede conectarse y si se comparten las fotos.</div>
+        </div>
+      </div>
+      <div class="chat" aria-label="Ilustración: un responsable pregunta a un asistente qué está pendiente, ve una vista previa y aprueba">
+        <div class="chat-top"><span class="led" aria-hidden="true"></span>Asistente · conectado a Refund-Me</div>
+        <div class="bubble me b1">¿Qué está pendiente de mi aprobación?</div>
+        <div class="bubble bot b2"><span class="tool">waiting_for_me</span><br>Dos meses: <b>Lucía García</b>, octubre, 6 tickets, <span class="mono">1.284,60 €</span>, uno marcado como posible duplicado; <b>Pablo Ruiz</b>, octubre, 3 tickets, <span class="mono">412,00 €</span>. ¿Quieres ver el ticket marcado de Lucía?</div>
+        <div class="bubble me b3">Sí, ya lo revisé. Aprueba el mes de Pablo.</div>
+        <div class="bubble bot b4"><span class="tool">approve_month</span><br>Vista previa: 3 tickets, <span class="mono">412,00 €</span>, nada marcado. ¿Aprobar?<br><span class="ok">✓ Confirmado: aprobado y enviado a contabilidad.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Data stays yours -->
+  <section id="data">
+    <div class="wrap own">
+      <div>
+        <div class="section-head" style="margin-bottom:28px">
+          <span class="eyebrow">Tus datos siguen siendo tuyos</span>
+          <h2>Instalado en tu servidor. Tuyo.</h2>
+        </div>
+        <ul>
+          <li><span class="tick">✓</span><div><b>Una instalación por empresa</b><span>En tu servidor o tu cuenta en la nube. La base de datos y los archivos son tuyos.</span></div></li>
+          <li><span class="tick">✓</span><div><b>Sin necesidad de internet</b><span>Los tickets se leen y los informes PDF se generan en el propio servidor.</span></div></li>
+          <li><span class="tick">✓</span><div><b>IA en la nube solo si tú quieres</b><span>Conecta Anthropic, OpenAI, xAI, OpenRouter o tu propio servidor GPU para una lectura aún mejor. Apagado hasta que un administrador lo active y lo confirme.</span></div></li>
+          <li><span class="tick">✓</span><div><b>Menos guardado, menos riesgo</b><span>El texto en bruto leído de los tickets se borra a los 30 días.</span></div></li>
+        </ul>
+      </div>
+      <div class="server" aria-label="Ilustración: la app, la base de datos y los archivos de tickets dentro de tu servidor; la IA en la nube apagada">
+        <div class="boundary">
+          <div class="box">Refund-Me <small>la app</small></div>
+          <div class="box">Lectura de tickets <small>integrada</small></div>
+          <div class="box">Base de datos <small>tuya</small></div>
+          <div class="box">Fotos de tickets <small>tuya</small></div>
+        </div>
+        <div class="cloud"><span class="sw" aria-hidden="true"></span>IA en la nube: apagada por defecto</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Single sign-on -->
+  <section id="sso" style="background:var(--paper-2)">
+    <div class="wrap sso">
+      <div>
+        <div class="section-head" style="margin-bottom:24px">
+          <span class="eyebrow">Inicio de sesión único (SSO)</span>
+          <h2>Entra con la cuenta de trabajo que ya tienes</h2>
+          <p class="lead">Conecta Microsoft Entra ID (Microsoft 365) o Google Workspace y tu gente entra con un clic. Ninguna contraseña nueva que recordar y nada nuevo que gestionar para TI.</p>
+        </div>
+        <ul class="sso-list">
+          <li><span class="tick">✓</span><div><b>Se aplican tus reglas de acceso</b>El acceso se hace en Microsoft o Google, así que las reglas de tu empresa, como la verificación en dos pasos, también cubren Refund-Me.</div></li>
+          <li><span class="tick">✓</span><div><b>Solo tu organización</b>El acceso con Microsoft está ligado a tu propio tenant, nunca a «cualquier cuenta de Microsoft», y solo entra quien está en la lista. Un compañero que aún no está espera a que un administrador o contable lo apruebe.</div></li>
+          <li><span class="tick">✓</span><div><b>Quien se va, queda fuera</b>Desactiva la cuenta de trabajo de alguien y ya no podrá entrar con ella; desactívalo en Refund-Me y se cierra su sesión en todas partes a la vez.</div></li>
+          <li><span class="tick">✓</span><div><b>Sin quedarse fuera</b>Los enlaces de un solo uso por email y las contraseñas siguen ahí para quien los necesite, y se pueden desactivar cuando el SSO funcione. Los administradores siempre pueden entrar, así que un SSO mal configurado no deja a todos fuera.</div></li>
+          <li><span class="tick">✓</span><div><b>Se configura en el asistente</b>Pega el ID y el secreto de la aplicación desde tu consola de administración de Microsoft o Google; la guía muestra exactamente dónde.</div></li>
+        </ul>
+      </div>
+      <div class="signin" aria-label="Ilustración: la página de acceso con Microsoft, Google y enlace por email">
+        <span class="mark" aria-hidden="true">€</span>
+        <h3>Entrar en gastos de Acme</h3>
+        <p>Usa tu cuenta de trabajo.</p>
+        <div class="idp hl"><span class="sq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Continuar con Microsoft<small>Entra ID</small></div>
+        <div class="idp"><span class="g" aria-hidden="true"></span>Continuar con Google<small>Workspace</small></div>
+        <div class="or">o</div>
+        <div class="mailrow"><span dir="ltr">carmen@acme.example</span><b>Envíame un enlace</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Security -->
+  <section id="security" style="background:var(--paper-2)">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">La seguridad, en palabras sencillas</span>
+        <h2>Dinero y datos personales, protegidos</h2>
+        <p class="lead">Los tickets llevan nombres, importes, dígitos de tarjeta y matrículas. Esto es lo que los protege.</p>
+      </div>
+      <div class="sec-grid">
+        <div class="sec"><div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><h3>Solo entra tu gente</h3><p>Solo la gente de la lista puede entrar, con cuentas de trabajo de Microsoft o Google, un enlace de un solo uso por email o una contraseña. Los intentos de adivinar contraseñas se frenan automáticamente.</p></div>
+        <div class="sec"><div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></div><h3>Una prueba para los cambios importantes</h3><p>Nombrar un administrador, cambiar el acceso o el correo, restablecer los datos o cargar una copia exige un acceso reciente o la contraseña. Una sesión robada no basta.</p></div>
+        <div class="sec"><div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/></svg></div><h3>Ver solo lo tuyo</h3><p>Los empleados ven sus propios gastos, los responsables su equipo y contabilidad la empresa. Los asistentes de IA tienen exactamente los permisos de su dueño y pueden ser de solo lectura.</p></div>
+        <div class="sec"><div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zM15.5 7.5l3 3L22 7l-3-3"/></svg></div><h3>Los secretos siguen siendo secretos</h3><p>Las contraseñas y claves guardadas se cifran, y la clave puede guardarse aparte de los datos. El usuario de base de datos de la app solo puede leer y escribir sus datos.</p></div>
+        <div class="sec"><div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h8"/></svg></div><h3>Nada pasa en silencio</h3><p>Un registro de actividad de quién hizo qué, cuándo y desde dónde, que nadie puede editar ni borrar. Los demás administradores reciben avisos de cambios de configuración y de administradores.</p></div>
+        <div class="sec"><div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/></svg></div><h3>Construido y operado con cuidado</h3><p>Funciona como usuario normal, sin poderes extra. Las nuevas versiones de paquetes esperan dos semanas, cada paquete se verifica y las revisiones de seguridad independientes vienen con correcciones.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Segregation of duties -->
+  <section id="controls">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Segregación de funciones</span>
+        <h2>Nadie puede gastar y aprobar a la vez</h2>
+        <p class="lead">Los controles que buscan los auditores, integrados en lugar de dejados a la buena voluntad.</p>
+      </div>
+      <div class="ledger" role="table" aria-label="Los controles y lo que evitan">
+        <div class="ledger-head" role="row"><span role="columnheader">#</span><span role="columnheader">El control</span><span role="columnheader">Lo que evita</span></div>
+        <div class="ledger-row" role="row"><span class="n" role="cell">01</span><div class="ctl" role="cell"><b>Nadie aprueba sus propios gastos</b><span>Un administrador puede permitir que contabilidad se autoapruebe cuando nadie más puede, y esas aprobaciones quedan marcadas.</span></div><div class="prev" role="cell">Pagarte a ti mismo sin un segundo par de ojos</div></div>
+        <div class="ledger-row" role="row"><span class="n" role="cell">02</span><div class="ctl" role="cell"><b>Aprobación en dos pasos, si la quieres</b><span>Primero el responsable del empleado, luego contabilidad.</span></div><div class="prev" role="cell">Un pago sin que lo vea quien conoce el trabajo</div></div>
+        <div class="ledger-row" role="row"><span class="n" role="cell">03</span><div class="ctl" role="cell"><b>Ayudar no es aprobar</b><span>Contabilidad puede subir tickets por un empleado o actuar como él hasta 30 minutos (queda registrado con el nombre del contable y el empleado recibe aviso), pero nunca puede aprobar esos tickets. No se puede actuar como un administrador.</span></div><div class="prev" role="cell">Crear un gasto y aprobarlo a través de la cuenta de otra persona</div></div>
+        <div class="ledger-row" role="row"><span class="n" role="cell">04</span><div class="ctl" role="cell"><b>Los roles están protegidos</b><span>Los contables solo añaden empleados. Solo un administrador nombra responsables, contables y administradores.</span></div><div class="prev" role="cell">Contabilidad ascendiéndose a sí misma o a un amigo</div></div>
+        <div class="ledger-row" role="row"><span class="n" role="cell">05</span><div class="ctl" role="cell"><b>Apruebas lo que viste</b><span>Si un ticket cambia después de abrirlo, tu decisión se rechaza hasta que lo vuelvas a mirar.</span></div><div class="prev" role="cell">Aprobar un importe distinto del que revisaste</div></div>
+        <div class="ledger-row" role="row"><span class="n" role="cell">06</span><div class="ctl" role="cell"><b>Los avisos hay que mirarlos</b><span>Aprobar un lote con un ticket marcado te pide confirmar que lo revisaste.</span></div><div class="prev" role="cell">Colar un duplicado en un lote</div></div>
+        <div class="ledger-row" role="row"><span class="n" role="cell">07</span><div class="ctl" role="cell"><b>Pagado es pagado</b><span>Un ticket exportado no puede cambiar de mes; retirar su aprobación o borrarlo pide confirmación.</span></div><div class="prev" role="cell">Cambiar lo que ya se envió a pagar</div></div>
+        <div class="ledger-row" role="row"><span class="n" role="cell">08</span><div class="ctl" role="cell"><b>Cerrar es definitivo, reabrir queda registrado</b><span>Un mes solo se cierra cuando todo está decidido; reabrirlo exige un motivo que queda en su historial.</span></div><div class="prev" role="cell">Cambios tardíos colándose en un mes cerrado</div></div>
+        <div class="ledger-row" role="row"><span class="n" role="cell">09</span><div class="ctl" role="cell"><b>Borrar deja rastro</b><span>Solo contabilidad borra, con un motivo; el empleado recibe un email y el historial se conserva.</span></div><div class="prev" role="cell">Tickets que desaparecen</div></div>
+        <div class="ledger-row" role="row"><span class="n" role="cell">10</span><div class="ctl" role="cell"><b>Los administradores se vigilan entre sí</b><span>Los cambios de configuración y de rol de administrador avisan a todos los demás administradores; a un administrador solo se le recuerda añadir otro.</span></div><div class="prev" role="cell">Un administrador cambiando las reglas sin que nadie lo vea</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Setup wizard -->
+  <section id="setup">
+    <div class="wrap wiz-wrap">
+      <div>
+        <div class="section-head" style="margin-bottom:24px">
+          <span class="eyebrow">El asistente de configuración</span>
+          <h2>Se configura en el navegador, no en archivos</h2>
+          <p class="lead">Abre la dirección de la app y un breve asistente te guía. Los tres primeros pasos bastan; el resto puede esperar.</p>
+        </div>
+        <ul class="wiz-points">
+          <li><span class="tick">✓</span><div><b>Cada paso se comprueba</b>La conexión a la base de datos, un archivo de prueba en el almacenamiento, el servidor de correo: sabes que funciona antes de seguir.</div></li>
+          <li><span class="tick">✓</span><div><b>Usuarios de base de datos seguros, creados por ti</b>Dale una vez un usuario administrador y crea un usuario limitado para la app. El usuario administrador no se guarda.</div></li>
+          <li><span class="tick">✓</span><div><b>¿Cambias de servidor?</b>Carga una copia de la configuración y el asistente recupera tus ajustes, tipos de gasto y personas.</div></li>
+        </ul>
+      </div>
+      <div class="win" aria-label="Ilustración: el asistente de configuración recorre sus siete pasos">
+        <div class="win-bar"><i></i><i></i><i></i><span dir="ltr">https://expenses.your-company.com/setup</span></div>
+        <div class="wiz-progress"><i></i></div>
+        <div class="wiz">
+          <div class="wiz-rail" aria-hidden="true">
+            <div class="h">Configuración</div>
+            <div class="st f1"><b>1</b>Base de datos</div>
+            <div class="st f2"><b>2</b>Almacenamiento</div>
+            <div class="st f3"><b>3</b>Primer administrador</div>
+            <div class="st f4"><b>4</b>Acceso<small>luego</small></div>
+            <div class="st f5"><b>5</b>Email<small>luego</small></div>
+            <div class="st f6"><b>6</b>Marca<small>luego</small></div>
+            <div class="st f7"><b>7</b>Lectura de tickets<small>luego</small></div>
+          </div>
+          <div class="wiz-body" aria-hidden="true">
+            <div class="pane f1"><h4>Conectar una base de datos</h4><p>Donde Refund-Me guarda sus datos.</p>
+              <div class="opt on"><span class="r"></span>Integrada<small>hasta ~50 personas</small></div>
+              <div class="opt"><span class="r"></span>PostgreSQL<small>recomendado</small></div>
+              <div class="opt"><span class="r"></span>Microsoft SQL Server<small>o Azure SQL</small></div>
+              <div class="opt"><span class="r"></span>MySQL / MariaDB</div>
+              <span class="btnx">Conectar y seguir</span></div>
+            <div class="pane f2"><h4>Dónde se guardan los archivos</h4><p>Fotos, PDF y logotipos.</p>
+              <div class="opt on"><span class="r"></span>Este servidor<small>una carpeta en el servidor</small></div>
+              <div class="opt"><span class="r"></span>Cloudflare R2</div>
+              <div class="opt"><span class="r"></span>Compatible con S3<small>Amazon S3, MinIO, Wasabi</small></div>
+              <span class="btnx">Comprobar y seguir</span></div>
+            <div class="pane f3"><h4>Tu empresa y el primer administrador</h4><p>Todo lo demás se puede cambiar luego.</p>
+              <div class="inp">Nombre de la empresa<small>Acme S.L.</small></div>
+              <div class="inp">Nombre completo<small>Carmen López</small></div>
+              <div class="inp">Email<small>carmen@acme.example</small></div>
+              <div class="inp">Contraseña<small>••••••••••</small></div>
+              <span class="btnx">Crear y seguir</span></div>
+            <div class="pane f4"><h4>Acceso</h4><p>Que la gente entre con su cuenta de trabajo.</p>
+              <div class="opt on"><span class="r"></span>Microsoft (Entra ID)</div>
+              <div class="opt"><span class="r"></span>Google Workspace</div>
+              <div class="opt"><span class="r"></span>Solo enlaces por email y contraseñas</div>
+              <span class="later">Puedes hacerlo luego</span></div>
+            <div class="pane f5"><h4>Correo saliente</h4><p>Para invitaciones, enlaces de acceso y recordatorios.</p>
+              <div class="inp">Servidor de correo<small>smtp.acme.example</small></div>
+              <div class="inp">Remitente<small>gastos@acme.example</small></div>
+              <span class="btnx">Enviar un email de prueba</span></div>
+            <div class="pane f6"><h4>Marca</h4><p>Tu nombre, logotipo y colores en pantallas e informes.</p>
+              <div class="inp">Logotipo<small>logo.svg</small></div>
+              <div class="swatches"><i style="background:#0f1b2d"></i><i style="background:#1f6feb"></i><i style="background:#198a4a"></i><i style="background:#e0a82e"></i><i style="background:#b8432f"></i></div>
+              <span class="later">Puedes hacerlo luego</span></div>
+            <div class="pane f7"><h4>Lectura de tickets</h4><p>Integrada, o algo más potente cuando quieras.</p>
+              <div class="opt on"><span class="r"></span>Integrada<small>nada sale del servidor</small></div>
+              <div class="opt"><span class="r"></span>Tu servidor GPU</div>
+              <div class="opt"><span class="r"></span>IA en la nube<small>apagada hasta que confirmes</small></div>
+              <span class="btnx">Probar el ticket de ejemplo</span></div>
+            <div class="pane done f8"><span class="big">✓</span><h4>Listo</h4><p>Invita a tu gente y empieza a escanear.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section id="install" style="background:var(--paper-2)">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Instalación</span>
+        <h2>En marcha en minutos</h2>
+        <p class="lead">Un comando en un servidor con Docker. Un asistente en el navegador hace el resto. Gratis para tu propia empresa (<a href="license.html">licencia</a>).</p>
+      </div>
+      <div class="install">
+        <div class="term">
+          <div class="bar"><i></i><i></i><i></i></div>
+<pre dir="ltr"><span class="c"># un comando: ajustes, clave, descarga, arranque</span>
+<span class="p">$</span> curl -fsSL https://raw.githubusercontent.com/oriyahoo/refund-me-app/main/install.sh | sh
+
+<span class="c"># luego abre el asistente de configuración</span>
+http://your-server:3855
+
+<span class="c"># actualizar más adelante</span>
+<span class="p">$</span> cd refund-me && docker compose pull && docker compose up -d</pre>
+        </div>
+        <div class="req">
+          <h3 style="font-size:20px">Necesitas</h3>
+          <ul>
+            <li>Un servidor Linux o una máquina virtual con Docker. 2 núcleos y 2 GB de memoria bastan para una oficina pequeña.</li>
+            <li>Una base de datos: la integrada (hasta unas 50 personas), o PostgreSQL, SQL Server / Azure SQL, MySQL o MariaDB.</li>
+            <li>Una dirección HTTPS delante de la app para uso real.</li>
+            <li>Opcional: un servidor de correo, y Microsoft Entra ID o Google Workspace para el inicio de sesión único.</li>
+          </ul>
+          <div class="wizard"><span><b>1</b>Base de datos</span><span><b>2</b>Almacenamiento</span><span><b>3</b>Primer administrador</span><span><b>4</b>Acceso</span><span><b>5</b>Email</span><span><b>6</b>Marca</span><span><b>7</b>Lectura de tickets</span></div>
+          <p style="color:var(--muted);font-size:14px;margin-top:12px">La guía completa para TI, Coolify incluido: <a href="https://github.com/oriyahoo/refund-me-app/blob/main/INSTALL.md">INSTALL.md</a> · <a href="https://github.com/oriyahoo/refund-me-app">el repositorio de instalación</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="wrap">
+      <span class="eyebrow" style="color:var(--amber)">Refund-Me</span>
+      <h2>Devuélvele las tardes a tu gente</h2>
+      <p>Entran tickets, salen reembolsos, con los controles que esperan tus auditores. Instalado en tu servidor, en hebreo e inglés, en todos los dispositivos.</p>
+      <a class="btn btn-amber" href="#install">Empezar</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Refund-Me · reembolso de gastos para empresas israelíes</span>
+    <span><a href="license.html">Licencia</a> · <a href="https://github.com/oriyahoo/refund-me-app">GitHub</a> · Las ilustraciones usan datos inventados.</span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const btn = document.querySelector(".lang-btn"), menu = document.getElementById("lang-menu");
+  if (!btn || !menu) return;
+  const set = (open) => { btn.setAttribute("aria-expanded", String(open)); menu.hidden = !open; };
+  btn.addEventListener("click", () => { const open = menu.hidden; set(open); if (open) menu.querySelector("a").focus(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !menu.hidden) { set(false); btn.focus(); } });
+  document.addEventListener("click", (e) => { if (!menu.hidden && !e.target.closest(".lang")) set(false); });
+})();
+</script>
+</body>
+</html>

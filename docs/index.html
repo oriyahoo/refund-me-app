@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Refund-Me</title>
 <meta name="description" content="Expense reimbursement for Israeli companies: snap receipts on the phone, approve with a tap, export to accounting. On your own server, in Hebrew and English.">
+<link rel="alternate" hreflang="en" href="https://oriyahoo.github.io/refund-me-app/">
+<link rel="alternate" hreflang="fr" href="https://oriyahoo.github.io/refund-me-app/fr/">
+<link rel="alternate" hreflang="es" href="https://oriyahoo.github.io/refund-me-app/es/">
+<link rel="alternate" hreflang="he" href="https://oriyahoo.github.io/refund-me-app/he/">
+<link rel="alternate" hreflang="x-default" href="https://oriyahoo.github.io/refund-me-app/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&display=swap">
@@ -84,7 +89,33 @@ section { padding-block: 88px; }
 .btn-amber { background: var(--amber); color: #1d1404; }
 .btn-ghost { border-color: var(--line); background: var(--card); }
 .btn-small { height: 38px; padding: 0 14px; font-size: 14px; }
-@media (max-width: 760px) { .top nav { display: none; } .top .btn { margin-inline-start: auto; } }
+@media (max-width: 760px) { .top nav { display: none; } .top .lang { margin-inline-start: auto; } }
+@media (max-width: 400px) { .top .btn-small { display: none; } }
+
+/* Language switcher: a button with the current flag, a small menu of the four versions */
+.lang { position: relative; }
+.lang-btn { display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: 600 13px/1 "IBM Plex Sans Hebrew", system-ui, sans-serif; cursor: pointer; }
+.lang-btn:hover { border-color: var(--amber); }
+.lang-btn:focus-visible, .lang-menu a:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.flag { width: 20px; height: 14px; border-radius: 3px; flex: none; box-shadow: 0 0 0 1px rgb(0 0 0 / .12); overflow: hidden; display: block; }
+.lang-menu { position: absolute; inset-inline-end: 0; top: calc(100% + 6px); min-width: 170px; margin: 0; padding: 6px; list-style: none; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); z-index: 20; }
+.lang-menu[hidden] { display: none; }
+.lang-menu a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; text-decoration: none; color: var(--ink); font-size: 14px; }
+.lang-menu a:hover { background: var(--paper-2); }
+.lang-menu a[aria-current="true"] { font-weight: 600; background: var(--amber-soft); }
+.lang-btn .chev { width: 10px; height: 10px; opacity: .6; }
+
+/* Right-to-left (the Hebrew version): what logical properties don't mirror by themselves */
+[dir="rtl"] .receipt { text-align: right; }
+[dir="rtl"] .wiz-progress i { transform-origin: right; }
+[dir="rtl"] .chit { left: auto; right: calc(12% - 13px); animation-name: travel-rtl; }
+@keyframes travel-rtl { 0%, 6% { right: calc(12% - 13px) } 25%, 31% { right: calc(37.3% - 13px) } 50%, 56% { right: calc(62.6% - 13px) } 75%, 94% { right: calc(88% - 13px) } 100% { right: calc(12% - 13px); opacity: 0 } }
+[dir="rtl"] .pane { animation-name: pane-rtl; }
+@keyframes pane-rtl { 0% { opacity: 0; translate: -12px 0 } 2%, 11% { opacity: 1; translate: 0 0 } 12.5%, 100% { opacity: 0; translate: 12px 0 } }
+[dir="rtl"] .compare .arrow { transform: scaleX(-1); }
+/* The monospace face has no Hebrew letters: Hebrew labels use the text face, without spacing. */
+[dir="rtl"] .eyebrow, [dir="rtl"] .ledger-head, [dir="rtl"] .asks li b, [dir="rtl"] .gain .k, [dir="rtl"] .ba-side h3,
+[dir="rtl"] .server .boundary::before, [dir="rtl"] .step::before, [dir="rtl"] .app-band .label, [dir="rtl"] .facts b { letter-spacing: 0; font-family: "IBM Plex Sans Hebrew", system-ui, sans-serif; }
 
 /* Hero */
 .hero { padding-block: 72px 96px; overflow: hidden; }
@@ -134,6 +165,52 @@ section { padding-block: 88px; }
 @keyframes status { 0%, 44% { opacity: 0; scale: .8 } 50%, 92% { opacity: 1; scale: 1 } 100% { opacity: 0 } }
 @keyframes toast { 0%, 52% { opacity: 0; translate: 0 10px } 58%, 92% { opacity: 1; translate: 0 0 } 100% { opacity: 0 } }
 @keyframes toast2 { 0%, 64% { opacity: 0; translate: 0 10px } 70%, 92% { opacity: 1; translate: 0 0 } 100% { opacity: 0 } }
+
+/* Mission: from paper to done */
+.mission { padding-block: 72px 80px; }
+.mission .section-head { margin-inline: auto; text-align: center; justify-items: center; }
+.mission .lead { margin-inline: auto; }
+.ba { display: grid; grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr); gap: 16px; align-items: stretch; }
+.ba-side { border-radius: 22px; padding: 22px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.ba-side h3 { font: 600 12px/1 "IBM Plex Mono", monospace; letter-spacing: .14em; text-transform: uppercase; margin: 0; }
+.ba-paper { background: var(--paper-2); border: 1px dashed var(--line); color: var(--muted); }
+.ba-paper h3 { color: var(--muted); }
+.ba-digital { background: var(--navy); color: var(--on-navy); box-shadow: var(--shadow); }
+.ba-digital h3 { color: var(--amber); }
+.desk { position: relative; height: 220px; }
+.slip { position: absolute; width: 74px; background: #fffdf6; border-radius: 3px; padding: 8px 7px 12px; box-shadow: 0 2px 6px rgb(0 0 0 / .12); display: grid; gap: 4px; animation: drift 7s ease-in-out infinite; }
+.slip::after { content: ""; position: absolute; left: 0; right: 0; bottom: -5px; height: 6px; background: linear-gradient(-45deg, transparent 4px, #fffdf6 0) 0 0 / 8px 8px, linear-gradient(45deg, transparent 4px, #fffdf6 0) 0 0 / 8px 8px; }
+.slip i { display: block; height: 4px; border-radius: 2px; background: #d8d2c4; }
+.slip i:nth-child(2) { width: 70%; } .slip i:last-child { width: 45%; background: #bdb5a3; }
+.s1 { top: 18px; inset-inline-start: 6%; rotate: -9deg; } .s2 { top: 70px; inset-inline-start: 24%; rotate: 7deg; animation-delay: -2s; } .s3 { top: 6px; inset-inline-start: 42%; rotate: -3deg; animation-delay: -4s; }
+@keyframes drift { 0%, 100% { translate: 0 0 } 50% { translate: 0 4px } }
+.envelope { position: absolute; bottom: 10px; inset-inline-start: 4%; width: 104px; height: 66px; background: #efe3c8; border-radius: 4px; box-shadow: 0 2px 6px rgb(0 0 0 / .12); overflow: hidden; rotate: -4deg; }
+.envelope::before { content: ""; position: absolute; inset: 0 0 auto; height: 40px; background: #e6d6b2; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.sheet { position: absolute; top: 34px; inset-inline-end: 4%; width: 120px; height: 104px; background: #fff; border-radius: 4px; box-shadow: 0 2px 6px rgb(0 0 0 / .12); rotate: 4deg; background-image: linear-gradient(#e3ebe1 1px, transparent 1px), linear-gradient(90deg, #e3ebe1 1px, transparent 1px); background-size: 100% 13px, 30px 100%; }
+.sheet::before { content: ""; position: absolute; inset: 0 0 auto; height: 13px; background: #cfe3cf; border-radius: 4px 4px 0 0; }
+.sticky { position: absolute; bottom: 14px; inset-inline-end: 10%; width: 92px; padding: 8px; background: #fde68a; color: #5b4300; font: 600 11px/1.3 "IBM Plex Sans Hebrew", system-ui, sans-serif; rotate: 5deg; box-shadow: 0 2px 6px rgb(0 0 0 / .12); }
+.ba-paper ul, .ba-digital ul { margin: 0; padding-inline-start: 18px; display: grid; gap: 6px; font-size: 14.5px; }
+.ba-arrow { display: grid; place-items: center; }
+.ba-arrow span { width: 52px; height: 52px; border-radius: 50%; background: var(--amber); color: #1d1404; display: grid; place-items: center; font-size: 24px; font-weight: 700; box-shadow: 0 6px 18px rgb(224 168 46 / .45); animation: nudge 2.4s ease-in-out infinite; }
+@keyframes nudge { 0%, 100% { translate: 0 0 } 50% { translate: 5px 0 } }
+[dir="rtl"] .ba-arrow span { animation-name: nudge-rtl; } [dir="rtl"] .ba-arrow b { display: inline-block; transform: scaleX(-1); }
+@keyframes nudge-rtl { 0%, 100% { translate: 0 0 } 50% { translate: -5px 0 } }
+.flow { display: grid; gap: 10px; }
+.flow div { display: flex; align-items: center; gap: 12px; background: var(--navy-2); border: 1px solid var(--navy-line); border-radius: 12px; padding: 10px 12px; font-size: 14.5px; }
+.flow .n { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--navy-line); display: grid; place-items: center; font: 600 12px "IBM Plex Mono", monospace; color: var(--on-navy-muted); flex: none; animation: lightup 8s infinite; }
+.flow small { margin-inline-start: auto; color: var(--on-navy-muted); font-size: 12px; }
+.flow div:nth-child(2) .n { animation-delay: 1.2s; } .flow div:nth-child(3) .n { animation-delay: 2.4s; } .flow div:nth-child(4) .n { animation-delay: 3.6s; }
+@keyframes lightup { 0%, 4% { background: transparent; border-color: var(--navy-line); color: var(--on-navy-muted) } 8%, 90% { background: var(--amber); border-color: var(--amber); color: #1d1404 } 100% { background: transparent; border-color: var(--navy-line); color: var(--on-navy-muted) } }
+.gains { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 28px; }
+.gain { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px; display: grid; gap: 8px; align-content: start; }
+.gain .k { font: 600 12px/1 "IBM Plex Mono", monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--amber-ink); }
+.gain h3 { font-size: 18px; }
+.gain p { color: var(--ink-2); font-size: 15px; }
+@media (max-width: 860px) { .ba { grid-template-columns: 1fr; } .ba-arrow span { rotate: 90deg; } .gains { grid-template-columns: 1fr; } }
+[dir="rtl"] .gain .k { letter-spacing: 0; }
+/* Stacked on phones the arrows point down; mirrored in Hebrew they need the opposite turn. */
+@media (max-width: 860px) { [dir="rtl"] .ba-arrow span { rotate: -90deg; } }
+@media (max-width: 700px) { [dir="rtl"] .compare .arrow { rotate: -90deg; } }
 
 /* Facts strip */
 .facts { background: var(--navy); color: var(--on-navy); padding-block: 34px; }
@@ -387,6 +464,7 @@ footer a { color: var(--ink-2); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .field, .status, .toast, .bubble { opacity: 1; translate: 0 0; }
+  .flow .n { background: var(--amber); border-color: var(--amber); color: #1d1404; }
   .pane { display: none; } .pane.f1 { display: grid; opacity: 1; position: static; } .wiz-rail .st.f1 { background: var(--navy-2); color: #fff; }
   .beam { display: none; }
   html { scroll-behavior: auto; }
@@ -408,6 +486,15 @@ footer a { color: var(--ink-2); }
       <a href="#install">Install</a>
       <a href="license.html">License</a>
     </nav>
+    <div class="lang">
+      <button type="button" class="lang-btn" aria-expanded="false" aria-controls="lang-menu" aria-label="Language: English"><svg class="flag" viewBox="0 0 60 42" aria-hidden="true"><rect width="60" height="42" fill="#012169"/><path d="M0 0l60 42M60 0L0 42" stroke="#fff" stroke-width="9"/><path d="M0 0l60 42M60 0L0 42" stroke="#C8102E" stroke-width="3"/><path d="M30 0v42M0 21h60" stroke="#fff" stroke-width="14"/><path d="M30 0v42M0 21h60" stroke="#C8102E" stroke-width="8"/></svg><span>EN</span><svg class="chev" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+      <ul class="lang-menu" id="lang-menu" hidden>
+        <li><a href="./" hreflang="en" aria-current="true"><svg class="flag" viewBox="0 0 60 42" aria-hidden="true"><rect width="60" height="42" fill="#012169"/><path d="M0 0l60 42M60 0L0 42" stroke="#fff" stroke-width="9"/><path d="M0 0l60 42M60 0L0 42" stroke="#C8102E" stroke-width="3"/><path d="M30 0v42M0 21h60" stroke="#fff" stroke-width="14"/><path d="M30 0v42M0 21h60" stroke="#C8102E" stroke-width="8"/></svg>English</a></li>
+        <li><a href="fr/" hreflang="fr"><svg class="flag" viewBox="0 0 3 2" aria-hidden="true"><rect width="1" height="2" fill="#002654"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#CE1126"/></svg>French</a></li>
+        <li><a href="es/" hreflang="es"><svg class="flag" viewBox="0 0 3 2" aria-hidden="true"><rect width="3" height="2" fill="#AA151B"/><rect y=".5" width="3" height="1" fill="#F1BF00"/></svg>Spanish</a></li>
+        <li><a href="he/" hreflang="he"><svg class="flag" viewBox="0 0 220 160" aria-hidden="true"><rect width="220" height="160" fill="#fff"/><rect y="15" width="220" height="25" fill="#0038b8"/><rect y="120" width="220" height="25" fill="#0038b8"/><path d="M110 52l24 42h-48zM110 108l-24-42h48z" fill="none" stroke="#0038b8" stroke-width="5.5"/></svg>Hebrew</a></li>
+      </ul>
+    </div>
     <a class="btn btn-amber btn-small" href="#install">Get started</a>
   </div>
 </header>
@@ -459,6 +546,54 @@ footer a { color: var(--ink-2); }
         </div>
         <div class="toast"><i>✓</i><div><b>Approved</b><br><span style="color:var(--muted);font-size:12px">by Accounting</span></div></div>
         <div class="toast toast-2"><i>$</i><div><b>November exported</b><br><span style="color:var(--muted);font-size:12px">Excel, with GL codes</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mission: what Refund-Me came to solve -->
+  <section id="mission" class="mission">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Why we built it</span>
+        <h2>From paper to done</h2>
+        <p class="lead">Refund-Me came to end manual documenting and submitting of expenses, and to bring them into a new, digital era that makes each person and the whole office more efficient.</p>
+      </div>
+      <div class="ba">
+        <div class="ba-side ba-paper">
+          <h3>Before</h3>
+          <div class="desk" aria-hidden="true">
+            <div class="slip s1"><i></i><i></i><i></i><i></i></div>
+            <div class="slip s2"><i></i><i></i><i></i></div>
+            <div class="slip s3"><i></i><i></i><i></i><i></i></div>
+            <div class="sheet"></div>
+            <div class="envelope"></div>
+            <div class="sticky">Expenses due Friday!</div>
+          </div>
+          <ul>
+            <li>Paper receipts kept in wallets and envelopes</li>
+            <li>Details typed into spreadsheets, forms printed and signed</li>
+            <li>Chased by email at month end, then re-typed by accounting</li>
+          </ul>
+        </div>
+        <div class="ba-arrow" aria-hidden="true"><span><b>→</b></span></div>
+        <div class="ba-side ba-digital">
+          <h3>With Refund-Me</h3>
+          <div class="flow">
+            <div><span class="n">1</span>Snap the receipt<small>phone camera</small></div>
+            <div><span class="n">2</span>The app reads it<small>details filled in</small></div>
+            <div><span class="n">3</span>Approved on the phone<small>manager, accounting</small></div>
+            <div><span class="n">4</span>The month goes to accounting<small>Excel, CSV, PDF</small></div>
+          </div>
+          <ul>
+            <li>One digital flow from the counter to the books</li>
+            <li>No paper, no re-typing</li>
+          </ul>
+        </div>
+      </div>
+      <div class="gains">
+        <div class="gain"><span class="k">The problem</span><h3>Expenses are still done by hand</h3><p>Receipts on paper, details in spreadsheets, signatures, reminders and re-typing: hours of work that adds nothing.</p></div>
+        <div class="gain"><span class="k">For each person</span><h3>A minute per receipt</h3><p>Snap it when you pay instead of spending an evening at month end. Nothing gets lost.</p></div>
+        <div class="gain"><span class="k">For the office</span><h3>A faster, cleaner close</h3><p>Managers approve in a tap; accounting closes the month faster, with fewer errors and a full audit trail.</p></div>
       </div>
     </div>
   </section>
@@ -686,7 +821,7 @@ footer a { color: var(--ink-2); }
         <div class="idp hl"><span class="sq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Continue with Microsoft<small>Entra ID</small></div>
         <div class="idp"><span class="g" aria-hidden="true"></span>Continue with Google<small>Workspace</small></div>
         <div class="or">or</div>
-        <div class="mailrow"><span>noa@acme.example</span><b>Email me a link</b></div>
+        <div class="mailrow"><span dir="ltr">noa@acme.example</span><b>Email me a link</b></div>
       </div>
     </div>
   </section>
@@ -750,7 +885,7 @@ footer a { color: var(--ink-2); }
         </ul>
       </div>
       <div class="win" aria-label="Illustration: the setup wizard going through its seven steps">
-        <div class="win-bar"><i></i><i></i><i></i><span>https://expenses.your-company.com/setup</span></div>
+        <div class="win-bar"><i></i><i></i><i></i><span dir="ltr">https://expenses.your-company.com/setup</span></div>
         <div class="wiz-progress"><i></i></div>
         <div class="wiz">
           <div class="wiz-rail" aria-hidden="true">
@@ -817,7 +952,7 @@ footer a { color: var(--ink-2); }
       <div class="install">
         <div class="term">
           <div class="bar"><i></i><i></i><i></i></div>
-<pre><span class="c"># one command: settings, key, download, start</span>
+<pre dir="ltr"><span class="c"># one command: settings, key, download, start</span>
 <span class="p">$</span> curl -fsSL https://raw.githubusercontent.com/oriyahoo/refund-me-app/main/install.sh | sh
 
 <span class="c"># then open the setup wizard</span>
@@ -858,5 +993,15 @@ http://your-server:3855
   </div>
 </footer>
 
+<script>
+(() => {
+  const btn = document.querySelector(".lang-btn"), menu = document.getElementById("lang-menu");
+  if (!btn || !menu) return;
+  const set = (open) => { btn.setAttribute("aria-expanded", String(open)); menu.hidden = !open; };
+  btn.addEventListener("click", () => { const open = menu.hidden; set(open); if (open) menu.querySelector("a").focus(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !menu.hidden) { set(false); btn.focus(); } });
+  document.addEventListener("click", (e) => { if (!menu.hidden && !e.target.closest(".lang")) set(false); });
+})();
+</script>
 </body>
 </html>
