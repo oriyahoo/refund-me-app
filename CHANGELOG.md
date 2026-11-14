@@ -4,6 +4,45 @@ Each version is published as `ghcr.io/oriyahoo/refund-me:<version>` (and `:lates
 upgrade: `docker compose pull && docker compose up -d` in your `refund-me` folder. Database
 changes apply themselves on start; take a backup first.
 
+## 0.3.0
+
+- **Log forwarding to your SIEM** (Admin → System → Log forwarding). Every activity-log entry
+  also goes, as it happens, to your SIEM or log service: syslog (RFC 5424, over TLS, TCP or UDP)
+  and/or HTTPS as JSON, with a ready choice for **Axiom**. Entries include the person's name and
+  email and the address they came from; passwords and keys never. "Check and save" sends a test
+  entry first. Turning it on, changing it or turning it off asks you to confirm it's you, and
+  the other admins are told. While the destination is down, entries wait and are sent again.
+- **Errors in the activity log.** A page, action or background task that fails is recorded under
+  the new **Errors** kind, with the technical detail IT needs (passwords removed). The same error
+  repeating is recorded once, with how many times it happened.
+- **Amounts in French and Spanish are read correctly.** In 0.2.0 an amount typed with a decimal
+  comma ("45,90") was saved as 4,590.00. Please check any expense entered in French or Spanish
+  on 0.2.0 before approving it.
+- **Receipts in other currencies:**
+  - All 15 currencies are recognised on receipts; a "$" with Canadian or Australian details is
+    read as CAD or AUD, and an unclear sign is left for the employee instead of guessed.
+  - The currency and total read from the receipt are kept: changing them is flagged for the
+    approver, as are a receipt with no exchange rate and a rate typed by hand (with who typed it).
+  - A rate typed by hand more than 10% away from the bank's needs a reason.
+  - No VAT on a receipt in another currency, and none in the export's VAT column.
+  - Exports have six new columns: receipt currency, receipt total, exchange rate, rate date,
+    rate source and the converted amount.
+  - Missing rates are filled in automatically once the sources answer again, also for older
+    receipts.
+  - The company currency can't be changed once there are expenses (also when loading a
+    configuration backup).
+- **Faster pages:** each page sends the browser only its own texts (the sign-in page is about
+  95 KB lighter).
+- **Installer:** `--cloudflare` now trusts only Cloudflare's own addresses, and a new
+  `--cloudflare-tunnel` keeps the port on the server itself. All settings live in `.env`, so
+  running the installer again keeps them (a `docker-compose.yml` you changed is kept, the new one
+  saved next to it); run with options it changes only those settings, and before an upgrade it
+  asks first. The install folder is private to its owner.
+- **Your company's own certificate authority** for a database, mail server or SIEM: see
+  INSTALL.md (`NODE_EXTRA_CA_CERTS`).
+- **Third-party licences:** THIRD_PARTY_NOTICES.txt, in the image and with each release.
+- Database: three new columns that can be empty, added in moments on every database.
+
 ## 0.2.0
 
 - **French and Spanish.** The whole app, its Help, emails and PDF reports, in Hebrew, English,
@@ -26,6 +65,7 @@ changes apply themselves on start; take a backup first.
 - The cloud AI receipt test names the provider that read the sample.
 
 
+## 0.1.2
 
 - **Debian 13.** The image now runs on Debian 13 (trixie), the current Debian release with full
   security support, instead of Debian 12. Node.js stays at version 22. Nothing to change on your
