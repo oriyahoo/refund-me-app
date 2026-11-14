@@ -4,6 +4,14 @@ Each version is published as `ghcr.io/oriyahoo/refund-me:<version>` (and `:lates
 upgrade: `docker compose pull && docker compose up -d` in your `refund-me` folder. Database
 changes apply themselves on start; take a backup first.
 
+## 0.1.1
+
+- **English by default.** A new install's setup wizard opens in English, and English is the
+  company's preselected language. Hebrew is one click away in the wizard, and everyone can still
+  switch their own language with the globe icon. Existing installs keep the language they chose.
+- Emails and alerts sent where no language is known (sign-in links, security notices, settings
+  alerts) are in English.
+
 ## 0.1.0
 
 The first public release.
