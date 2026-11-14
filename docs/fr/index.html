@@ -429,6 +429,24 @@ section { padding-block: 88px; }
 .sso-list li { display: grid; grid-template-columns: 28px 1fr; gap: 12px; color: var(--ink-2); font-size: 15px; }
 .sso-list b { color: var(--ink); display: block; }
 @media (max-width: 900px) { .sso { grid-template-columns: 1fr; } }
+/* Log forwarding (SIEM) */
+.feed { background: var(--card); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); padding: 22px; display: grid; gap: 10px; width: 100%; max-width: 480px; justify-self: center; min-width: 0; }
+.feed-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.feed-head b { color: var(--ink); font-size: 15px; }
+.feed-dest { font: 500 12px/1.4 "IBM Plex Mono", ui-monospace, monospace; color: var(--ink-2); background: var(--paper-2); border-radius: 8px; padding: 6px 10px; overflow-wrap: anywhere; }
+.feed-row { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 10px; align-items: baseline; font: 400 12.5px/1.5 "IBM Plex Mono", ui-monospace, monospace; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); animation: feedin 9s ease-in-out infinite; }
+.feed-row .tm { color: var(--muted); }
+.feed-row .sev { font-size: 11px; font-weight: 600; border-radius: 6px; padding: 1px 6px; background: var(--paper-2); color: var(--ink-2); }
+.feed-row .sev.err { background: #fde2df; color: #9b2c1f; }
+.feed-row .sev.note { background: var(--amber-soft); color: var(--ink); }
+.feed-row .what { min-width: 0; overflow-wrap: anywhere; color: var(--ink); }
+.feed-row .what span { display: block; color: var(--muted); }
+.feed-row:nth-child(3) { animation-delay: .6s } .feed-row:nth-child(4) { animation-delay: 1.2s } .feed-row:nth-child(5) { animation-delay: 1.8s } .feed-row:nth-child(6) { animation-delay: 2.4s }
+.feed-ok { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+.feed-ok::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #2f9e6b; box-shadow: 0 0 0 4px rgba(47,158,107,.15); }
+@keyframes feedin { 0%, 100% { border-color: var(--line) } 8% { border-color: var(--amber) } 20% { border-color: var(--line) } }
+@media (prefers-reduced-motion: reduce) { .feed-row { animation: none } }
+
 
 /* Security */
 .sec-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
@@ -544,6 +562,7 @@ footer a { color: var(--ink-2); }
       <a href="#devices">Appareils</a>
       <a href="#ai">Assistants IA</a>
       <a href="#sso">SSO</a>
+      <a href="#siem">SIEM</a>
       <a href="#security">Sécurité</a>
       <a href="#controls">Contrôles</a>
       <a href="#install">Installer</a>
@@ -904,6 +923,35 @@ footer a { color: var(--ink-2); }
         <div class="idp"><span class="g" aria-hidden="true"></span>Continuer avec Google<small>Workspace</small></div>
         <div class="or">ou</div>
         <div class="mailrow"><span dir="ltr">lea@acme.example</span><b>M'envoyer un lien</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Log forwarding (SIEM) -->
+  <section id="siem">
+    <div class="wrap sso">
+      <div>
+        <div class="section-head" style="margin-bottom:24px">
+          <span class="eyebrow">Transfert du journal (SIEM)</span>
+          <h2>Chaque action, dans votre SIEM, en temps réel</h2>
+          <p class="lead">Envoyez le journal d'activité vers Splunk, QRadar, Microsoft Sentinel, Wazuh, Graylog ou Axiom : votre équipe sécurité voit Refund-Me avec tout le reste.</p>
+        </div>
+        <ul class="sso-list">
+          <li><span class="tick">✓</span><div><b>Formats standard</b>Syslog (RFC 5424) en TLS, TCP ou UDP, ou HTTPS en JSON. Axiom est un choix prêt à l'emploi : un dataset et un jeton, et c'est fait.</div></li>
+          <li><span class="tick">✓</span><div><b>Tout, avec le détail</b>Connexions, approbations, changements de paramètres, e-mails et erreurs, avec qui, quand et depuis quelle adresse. Les mots de passe et les clés ne sortent jamais.</div></li>
+          <li><span class="tick">✓</span><div><b>Rien ne se perd en silence</b>Tant que le collecteur est indisponible, les entrées attendent et sont renvoyées. Ce qui ne peut pas partir est compté et enregistré.</div></li>
+          <li><span class="tick">✓</span><div><b>Impossible à couper sans que ça se voie</b>L'activer, le modifier ou l'arrêter demande à l'administrateur de confirmer que c'est bien lui, et les autres administrateurs sont prévenus.</div></li>
+          <li><span class="tick">✓</span><div><b>Testé avant d'être enregistré</b>« Vérifier et enregistrer » envoie d'abord une entrée de test, et la page des paramètres indique si les entrées arrivent.</div></li>
+        </ul>
+      </div>
+      <div class="feed" aria-label="Illustration : des entrées d'activité qui arrivent dans un SIEM">
+        <div class="feed-head"><b>Flux en direct</b><span>Syslog · TLS</span></div>
+        <div class="feed-dest" dir="ltr">siem.acme.example:6514</div>
+        <div class="feed-row" dir="ltr"><span class="tm">09:12:04</span><span class="sev">info</span><span class="what">auth.signedIn<span>lea@acme.example</span></span></div>
+        <div class="feed-row" dir="ltr"><span class="tm">09:14:31</span><span class="sev">info</span><span class="what">expense.approved<span>dan@acme.example</span></span></div>
+        <div class="feed-row" dir="ltr"><span class="tm">09:15:02</span><span class="sev note">notice</span><span class="what">settings.smtp.updated<span>maya@acme.example</span></span></div>
+        <div class="feed-row" dir="ltr"><span class="tm">09:16:47</span><span class="sev err">error</span><span class="what">error.task<span>taux de change</span></span></div>
+        <div class="feed-ok">Ça passe · 1 284 entrées aujourd'hui</div>
       </div>
     </div>
   </section>

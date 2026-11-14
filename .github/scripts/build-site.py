@@ -32,6 +32,9 @@ KEEP = {
     "cd refund-me && docker compose pull && docker compose up -d", "Excel, CSV, PDF",
     "Language: English",  # the switcher, rebuilt per language
     "Excel", "CSV", "PDF",
+    # The SIEM illustration: a syslog feed, as code.
+    "SIEM", "Syslog · TLS", "siem.acme.example:6514", "auth.signedIn", "expense.approved", "settings.smtp.updated",
+    "error.task", "dan@acme.example", "maya@acme.example", "info", "notice", "error",
 }
 
 FLAGS = {
@@ -354,6 +357,43 @@ add("Continue with Google", "Continuer avec Google", "Continuar con Google", "ה
 add("or", "ou", "o", "או")
 add("noa@acme.example", "lea@acme.example", "carmen@acme.example", "noa@acme.example")
 add("Email me a link", "M'envoyer un lien", "Envíame un enlace", "שלחו לי קישור")
+
+# Log forwarding (SIEM)
+add("Log forwarding (SIEM)", "Transfert du journal (SIEM)", "Reenvío del registro (SIEM)", "העברת יומן (SIEM)")
+add("Every action, in your SIEM as it happens", "Chaque action, dans votre SIEM, en temps réel", "Cada acción, en tu SIEM, al momento", "כל פעולה, ב-SIEM שלכם, ברגע שהיא קורית")
+add("Send the activity log to Splunk, QRadar, Microsoft Sentinel, Wazuh, Graylog or Axiom, so your security team sees Refund-Me with everything else.",
+    "Envoyez le journal d'activité vers Splunk, QRadar, Microsoft Sentinel, Wazuh, Graylog ou Axiom : votre équipe sécurité voit Refund-Me avec tout le reste.",
+    "Envía el registro de actividad a Splunk, QRadar, Microsoft Sentinel, Wazuh, Graylog o Axiom, para que tu equipo de seguridad vea Refund-Me junto con todo lo demás.",
+    "שלחו את יומן הפעילות ל-Splunk, ‏QRadar, ‏Microsoft Sentinel, ‏Wazuh, ‏Graylog או Axiom, כדי שצוות האבטחה יראה את Refund-Me יחד עם כל השאר.")
+add("Standard formats", "Formats standard", "Formatos estándar", "פורמטים סטנדרטיים")
+add("Syslog (RFC 5424) over TLS, TCP or UDP, or HTTPS with JSON. Axiom is a ready choice: a dataset and a token, and you're done.",
+    "Syslog (RFC 5424) en TLS, TCP ou UDP, ou HTTPS en JSON. Axiom est un choix prêt à l'emploi : un dataset et un jeton, et c'est fait.",
+    "Syslog (RFC 5424) por TLS, TCP o UDP, o HTTPS con JSON. Axiom es una opción lista: un dataset y un token, y listo.",
+    "Syslog‏ (RFC 5424) ב-TLS, ‏TCP או UDP, או HTTPS עם JSON. ל-Axiom יש בחירה מוכנה: dataset וטוקן, וזהו.")
+add("Everything, with detail", "Tout, avec le détail", "Todo, con detalle", "הכול, עם פרטים")
+add("Sign-ins, approvals, setting changes, emails and errors, with who, when and from which address. Passwords and keys never leave.",
+    "Connexions, approbations, changements de paramètres, e-mails et erreurs, avec qui, quand et depuis quelle adresse. Les mots de passe et les clés ne sortent jamais.",
+    "Inicios de sesión, aprobaciones, cambios de configuración, correos y errores, con quién, cuándo y desde qué dirección. Las contraseñas y las claves nunca salen.",
+    "כניסות, אישורים, שינויי הגדרות, מיילים ושגיאות, עם מי, מתי ומאיזו כתובת. סיסמאות ומפתחות לא יוצאים לעולם.")
+add("Nothing lost quietly", "Rien ne se perd en silence", "Nada se pierde en silencio", "שום דבר לא הולך לאיבוד בשקט")
+add("While the collector is down, entries wait and are sent again. Anything that can't be sent is counted and recorded.",
+    "Tant que le collecteur est indisponible, les entrées attendent et sont renvoyées. Ce qui ne peut pas partir est compté et enregistré.",
+    "Mientras el colector no responde, las entradas esperan y se reenvían. Lo que no se puede enviar se cuenta y se registra.",
+    "כשהאוסף לא זמין, הרשומות ממתינות ונשלחות שוב. מה שלא ניתן לשלוח נספר ונרשם.")
+add("Can't be switched off unseen", "Impossible à couper sans que ça se voie", "No se puede apagar sin que se vea", "אי אפשר לכבות בלי שיראו")
+add("Turning it on, changing it or stopping it asks the admin to confirm it's them, and the other admins are told.",
+    "L'activer, le modifier ou l'arrêter demande à l'administrateur de confirmer que c'est bien lui, et les autres administrateurs sont prévenus.",
+    "Activarlo, cambiarlo o detenerlo pide al administrador que confirme que es él, y se avisa a los demás administradores.",
+    "הפעלה, שינוי או עצירה דורשים ממנהל המערכת לאשר שזה הוא, ושאר המנהלים מקבלים הודעה.")
+add("Tested before it's saved", "Testé avant d'être enregistré", "Probado antes de guardarse", "נבדק לפני שהוא נשמר")
+add('"Check and save" sends a test entry first, and the settings page shows whether entries are getting through.',
+    "« Vérifier et enregistrer » envoie d'abord une entrée de test, et la page des paramètres indique si les entrées arrivent.",
+    "«Comprobar y guardar» envía antes una entrada de prueba, y la página de ajustes muestra si las entradas están llegando.",
+    '"בדיקה ושמירה" שולחת קודם רשומת בדיקה, ודף ההגדרות מראה אם הרשומות מגיעות.')
+add("Illustration: activity entries arriving in a SIEM", "Illustration : des entrées d'activité qui arrivent dans un SIEM", "Ilustración: entradas de actividad que llegan a un SIEM", "איור: רשומות פעילות שמגיעות ל-SIEM")
+add("Live feed", "Flux en direct", "En directo", "זרם חי")
+add("exchange rates", "taux de change", "tipos de cambio", "שערי חליפין")
+add("Getting through · 1,284 entries today", "Ça passe · 1 284 entrées aujourd'hui", "Llegando · 1284 entradas hoy", "מגיע · 1,284 רשומות היום")
 
 # Security
 add("Security, in plain words", "La sécurité, en mots simples", "La seguridad, en palabras sencillas", "אבטחה, במילים פשוטות")
