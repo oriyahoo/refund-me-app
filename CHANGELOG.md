@@ -4,6 +4,14 @@ Each version is published as `ghcr.io/oriyahoo/refund-me:<version>` (and `:lates
 upgrade: `docker compose pull && docker compose up -d` in your `refund-me` folder. Database
 changes apply themselves on start; take a backup first.
 
+## 0.1.2
+
+- **Debian 13.** The image now runs on Debian 13 (trixie), the current Debian release with full
+  security support, instead of Debian 12. Node.js stays at version 22. Nothing to change on your
+  side: `docker compose pull && docker compose up -d`.
+- Each release is now checked before it's published: PDF rendering (Hebrew and English) and the
+  image, canvas and database components are tested inside the image.
+
 ## 0.1.1
 
 - **English by default.** A new install's setup wizard opens in English, and English is the
