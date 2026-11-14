@@ -23,7 +23,7 @@ ghcr.io/oriyahoo/refund-me, the files in this repository, and their documentatio
       outside your organization;
    d. remove or change copyright notices, this license, or the Software's name or attributions;
    e. reverse engineer or decompile the Software, except to the extent the law allows despite
-      this restriction.
+      this restriction, or a third-party component's license allows it (section 8).
 
    Configuring the Software through its settings and documented environment variables, and
    adding your own certificates to the image for your own use, are not modifications for the
@@ -64,4 +64,8 @@ ghcr.io/oriyahoo/refund-me, the files in this repository, and their documentatio
    Licensor through https://github.com/oriyahoo/refund-me-app/issues.
 
    Third-party components inside the Software (open-source libraries, Chromium, the OCR engine
-   and others) remain under their own licenses.
+   and others) remain under their own licenses, listed with their texts in
+   THIRD_PARTY_NOTICES.txt (in the container image at /app, and with each release). Nothing in
+   this license limits the rights those licenses give you; for components under the GNU LGPL,
+   you may modify or replace them, and reverse engineer the Software as far as needed to debug
+   such changes.
