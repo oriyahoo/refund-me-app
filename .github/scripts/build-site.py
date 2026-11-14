@@ -591,6 +591,9 @@ def translate_landing(src: str, lang: str):
     out = re.sub(r'<div class="lang">.*?</ul>\s*</div>', switcher(lang, "index.html"), out, count=1, flags=re.S)
     # The license is the English page, one level up.
     out = out.replace('href="license.html"', 'href="../license.html"')
+    # The logo files are next to the English page, one level up.
+    for f in ("favicon.ico", "favicon.svg", "apple-touch-icon.png"):
+        out = out.replace(f'href="{f}"', f'href="../{f}"')
     return out, missing
 
 

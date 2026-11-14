@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Refund-Me</title>
 <meta name="description" content="Expense reimbursement for Israeli companies: snap receipts on the phone, approve with a tap, export to accounting. On your own server, in Hebrew, English, French and Spanish.">
 <link rel="alternate" hreflang="en" href="https://oriyahoo.github.io/refund-me-app/">
@@ -81,6 +84,7 @@ section { padding-block: 88px; }
 .top .wrap { display: flex; align-items: center; gap: 24px; padding-block: 14px; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; text-decoration: none; }
 .mark { width: 32px; height: 32px; border-radius: 9px; background: var(--navy); display: grid; place-items: center; color: var(--amber); font: 600 17px/1 "IBM Plex Mono", monospace; }
+.mark svg { width: 78%; height: 78%; display: block; }
 .top nav { display: flex; gap: 22px; margin-inline-start: auto; font-size: 14px; }
 .top nav a { text-decoration: none; color: var(--ink-2); }
 .top nav a:hover { color: var(--ink); }
@@ -556,7 +560,7 @@ footer a { color: var(--ink-2); }
 
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="#"><span class="mark">$</span>Refund-Me</a>
+    <a class="brand" href="#"><span class="mark"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M28 16 h44 v66 l-7.33 -5 l-7.33 5 l-7.33 -5 l-7.34 5 l-7.33 -5 l-7.33 5 z" fill="#ffffff"/><path d="M57.46 56.65 A13 13 0 1 0 38.74 39.50" fill="none" stroke="#e0a82e" stroke-width="7" stroke-linecap="round"/><path d="M32.97 49.50 L47.83 44.75 L29.65 34.25 Z" fill="#e0a82e" stroke="#e0a82e" stroke-width="2" stroke-linejoin="round"/></svg></span>Refund-Me</a>
     <nav aria-label="Sections">
       <a href="#how">How it works</a>
       <a href="#devices">Devices</a>
@@ -916,7 +920,7 @@ footer a { color: var(--ink-2); }
         </ul>
       </div>
       <div class="signin" aria-label="Illustration: the sign-in page with Microsoft, Google and email-link sign-in">
-        <span class="mark" aria-hidden="true">$</span>
+        <span class="mark" aria-hidden="true"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M28 16 h44 v66 l-7.33 -5 l-7.33 5 l-7.33 -5 l-7.34 5 l-7.33 -5 l-7.33 5 z" fill="#ffffff"/><path d="M57.46 56.65 A13 13 0 1 0 38.74 39.50" fill="none" stroke="#e0a82e" stroke-width="7" stroke-linecap="round"/><path d="M32.97 49.50 L47.83 44.75 L29.65 34.25 Z" fill="#e0a82e" stroke="#e0a82e" stroke-width="2" stroke-linejoin="round"/></svg></span>
         <h3>Sign in to Acme expenses</h3>
         <p>Use your work account.</p>
         <div class="idp hl"><span class="sq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Continue with Microsoft<small>Entra ID</small></div>
