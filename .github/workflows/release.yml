@@ -152,6 +152,17 @@ jobs:
               const c = createCanvas(10, 10); c.getContext("2d").fillRect(0, 0, 5, 5);
               console.log("native modules: sharp", jpg.length, "bytes; sqlite", db.prepare("select x from t").get().x, "; canvas", c.toBuffer("image/png").length, "bytes");
             })().catch((e) => { console.error(e); process.exit(1); });'
+          # The PDF reader the file worker loads (pdf.js through unpdf): in the image, and the
+          # version the app chose (review round 3, PKG-27).
+          docker run --rm --entrypoint node -w /app refund-me:check --input-type=module -e '
+            const { definePDFJSModule, getDocumentProxy, extractText } = await import("unpdf");
+            const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+            await definePDFJSModule(() => Promise.resolve(pdfjs));
+            const pdf = "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj 2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj 3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 100 100]>>endobj\ntrailer<</Root 1 0 R>>";
+            const doc = await getDocumentProxy(new TextEncoder().encode(pdf));
+            await extractText(doc);
+            console.log("pdf.js", pdfjs.version, "reads PDFs:", doc.numPages, "page");'
+
 
       - name: Scan the built image (when not publishing)
         if: ${{ !inputs.publish }}
