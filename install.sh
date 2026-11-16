@@ -18,7 +18,8 @@
 #   --proxy-ip <list>   the address(es) of your reverse proxy (nginx, Traefik, Coolify...),
 #                       comma-separated, e.g. 172.18.0.0/16 (TRUSTED_PROXIES)
 #   --postgres          also run a bundled PostgreSQL database, with a generated admin password
-#   --port <n>          the port on this server (default 3855)
+#   --port <n>          the port on this server, 1-65535 (default 3855; a first install in a
+#                       terminal asks for it). Inside the container the app always uses 3855.
 #   --upgrade           with other options on an existing install: also pull the newest version
 #                       (options alone only change settings and restart the same version)
 #   --no-prompt         don't ask questions (they're only asked in a terminal)
@@ -70,7 +71,8 @@ valid_url() { printf '%s' "$1" | grep -Eq '^https?://[A-Za-z0-9]([A-Za-z0-9.-]*[
 valid_ips() { printf '%s' "$1" | grep -Eq '^[0-9A-Fa-f.:/]+(,[0-9A-Fa-f.:/]+)*$'; }
 [ -z "$URL" ] || valid_url "$URL" || fail "--url should look like https://expenses.company.com (no path)."
 [ -z "$PROXY_IP" ] || valid_ips "$PROXY_IP" || fail "--proxy-ip takes addresses or ranges, comma-separated, e.g. 172.18.0.0/16"
-[ -z "$PORT" ] || printf '%s' "$PORT" | grep -Eq '^[0-9]{1,5}$' || fail "--port takes a number."
+valid_port() { case "$1" in ''|*[!0-9]*|0*) return 1 ;; esac; [ ${#1} -le 5 ] && [ "$1" -le 65535 ]; }
+[ -z "$PORT" ] || valid_port "$PORT" || fail "--port takes a number from 1 to 65535."
 [ "$CLOUDFLARE" = "0" ] || [ "$TUNNEL" = "0" ] || fail "Choose --cloudflare (Cloudflare's proxy) or --cloudflare-tunnel, not both."
 
 # What it needs.
@@ -94,6 +96,19 @@ set_env() {
   ' .env > .env.tmp && cat .env.tmp > .env && rm -f .env.tmp
 }
 is_set() { grep -q "^$1=." .env; }
+
+# Whether something on this server already listens on a TCP port (ss on Linux, netstat
+# elsewhere). Unknown (neither tool) counts as free: Docker then says so when it starts.
+port_busy() {
+  if command -v ss >/dev/null 2>&1; then
+    ss -Hltn 2>/dev/null | awk '{print $4}' | grep -Eq "[:.]$1\$"
+  elif command -v netstat >/dev/null 2>&1; then
+    netstat -an 2>/dev/null | grep -i listen | awk '{print $4}' | grep -Eq "[:.]$1\$"
+  else return 1; fi
+}
+port_note() {
+  [ "$1" -ge 1024 ] || echo "Note: ports below 1024 are usually kept for other services (80 and 443 for a web server or proxy)."
+}
 
 # The folder holds the encryption key and .env: only its owner may open it. Docker mounts the key
 # into the container itself, so the app reads it whatever the folder allows (review round 4,
@@ -136,10 +151,10 @@ chmod 600 .env
 # A first install in a terminal: ask what the options would have said. Read from the terminal
 # itself, so it works when the script comes through a pipe (curl ... | sh).
 if [ "$PROMPT" = "1" ] && [ "$FIRST" = "1" ] && [ -z "$URL" ] && [ "$CLOUDFLARE" = "0" ] && [ "$TUNNEL" = "0" ] && [ -z "$PROXY_IP" ] \
-   && [ -t 1 ] && (: </dev/tty) 2>/dev/null; then
+   && [ -z "$PORT" ] && [ -t 1 ] && (: </dev/tty) 2>/dev/null; then
   ask() { printf '%s' "$1" > /dev/tty; IFS= read -r REPLY < /dev/tty || REPLY=""; }
   echo
-  say "Two quick questions (Enter skips; everything can be changed later in .env):"
+  say "Three quick questions (Enter keeps the default; everything can be changed later in .env):"
   while :; do
     ask "1. The address people will use, e.g. https://expenses.company.com: "
     [ -z "$REPLY" ] && break
@@ -163,10 +178,32 @@ if [ "$PROMPT" = "1" ] && [ "$FIRST" = "1" ] && [ -z "$URL" ] && [ "$CLOUDFLARE"
          echo "   Addresses or ranges only, comma-separated. Try again or press Enter."
        done ;;
   esac
+  while :; do
+    ask "3. The port on this server [3855]: "
+    REPLY=${REPLY:-3855}
+    if ! valid_port "$REPLY"; then echo "   A number from 1 to 65535. Try again or press Enter for 3855."; continue; fi
+    if port_busy "$REPLY"; then echo "   Something on this server already uses port $REPLY. Choose another."; continue; fi
+    [ "$REPLY" = "3855" ] || PORT=$REPLY
+    break
+  done
   echo
 fi
 
-[ -z "$PORT" ] || [ "$TUNNEL" = "1" ] || set_env REFUND_ME_PORT "$PORT"
+# The port: the one asked for, else the one in .env, else 3855. A port published on one address
+# only (127.0.0.1 for a tunnel or a proxy on this server) stays on it when only the number changes.
+CURRENT=$(sed -n 's/^REFUND_ME_PORT=//p' .env | tail -1)
+case "$CURRENT" in *:*) BIND="${CURRENT%:*}:" ;; *) BIND="" ;; esac
+CURRENT=${CURRENT##*:}
+CURRENT=${CURRENT:-3855}
+SHOWN=${PORT:-$CURRENT}
+# Checked on a first install (nothing of ours runs yet) and when the port changes (the app holds
+# the old one, not the new one).
+if [ "$FIRST" = "1" ] || [ "$SHOWN" != "$CURRENT" ]; then
+  # A first install that stops here leaves no .env, so running it again asks again.
+  if port_busy "$SHOWN"; then [ "$FIRST" = "0" ] || rm -f .env; fail "Something on this server already uses port $SHOWN. Choose another with --port <n>."; fi
+fi
+[ -z "$PORT" ] || port_note "$PORT"
+[ -z "$PORT" ] || [ "$TUNNEL" = "1" ] || { set_env REFUND_ME_PORT "$BIND$PORT"; echo "REFUND_ME_PORT=$BIND$PORT: the app is on port $PORT of this server."; }
 if [ -n "$URL" ]; then
   set_env APP_URL "${URL%/}"
   echo "APP_URL=${URL%/}: links in emails and sign-in use this address."
@@ -192,13 +229,13 @@ if [ "$CLOUDFLARE" = "1" ]; then
   set_env CLIENT_IP_HEADER "cf-connecting-ip,x-forwarded-for"
   PROXY_IP="$(cloudflare_ranges)${PROXY_IP:+,$PROXY_IP}"
   echo "CLIENT_IP_HEADER and TRUSTED_PROXIES: the visitor's address is read from Cloudflare's header, and believed only from Cloudflare's own addresses."
-  echo "Note: Cloudflare Access and Cloudflare's rules protect only what comes through Cloudflare. Allow port ${PORT:-3855} on this server's firewall from Cloudflare's addresses only (https://www.cloudflare.com/ips/), or use --cloudflare-tunnel."
+  echo "Note: Cloudflare Access and Cloudflare's rules protect only what comes through Cloudflare. Allow port $SHOWN on this server's firewall from Cloudflare's addresses only (https://www.cloudflare.com/ips/), or use --cloudflare-tunnel."
 fi
 if [ "$TUNNEL" = "1" ]; then
   set_env CLIENT_IP_HEADER "cf-connecting-ip,x-forwarded-for"
-  set_env REFUND_ME_PORT "127.0.0.1:${PORT:-3855}"
+  set_env REFUND_ME_PORT "127.0.0.1:$SHOWN"
   PROXY_IP="${LOCAL_RANGES}${PROXY_IP:+,$PROXY_IP}"
-  echo "REFUND_ME_PORT=127.0.0.1:${PORT:-3855}: only this server reaches the app; point the tunnel at http://localhost:${PORT:-3855}."
+  echo "REFUND_ME_PORT=127.0.0.1:$SHOWN: only this server reaches the app; point the tunnel at http://localhost:$SHOWN."
 fi
 if [ -n "$PROXY_IP" ]; then
   set_env TRUSTED_PROXIES "$PROXY_IP"

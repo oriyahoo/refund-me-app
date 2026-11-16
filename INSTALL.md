@@ -42,8 +42,10 @@ curl -fsSL https://raw.githubusercontent.com/oriyahoo/refund-me-app/main/install
 
 The installer makes a `refund-me` folder with `docker-compose.yml`, your settings (`.env`) and the
 encryption key (`refund-me-secret.txt`), pulls the image and starts it. Open
-`http://<server>:3855`: the setup wizard opens. Run in a terminal on a first install, it asks for
-the address people will use and whether they come through Cloudflare or another proxy (see
+`http://<server>:3855` (or the port you chose): the setup wizard opens. Run in a terminal on a
+first install, it asks for the address people will use, whether they come through Cloudflare or
+another proxy, and the port on the server (Enter keeps 3855; a port something else already uses
+is refused) (see
 [HTTPS and the app's address](#https-and-the-apps-address) for why that matters). Options:
 
 - `--url <address>`: `APP_URL`, the address people will use.
@@ -57,7 +59,10 @@ the address people will use and whether they come through Cloudflare or another 
   network can reach the app around the tunnel; point the tunnel at `http://localhost:3855`.
 - `--proxy-ip <list>`: `TRUSTED_PROXIES`, your proxy's addresses or ranges.
 - `--postgres`: a bundled PostgreSQL with a generated admin password.
-- `--port <n>`, `--dir <path>`, `--no-prompt`, `--no-start`.
+- `--port <n>`: the port on this server, 1-65535 (default 3855). The installer stops if
+  something else already uses it. Inside the container the app always listens on 3855; only the
+  server's side changes.
+- `--dir <path>`, `--no-prompt`, `--no-start`.
 
 Run it again later to upgrade; it never replaces your `.env` or your key. Run with options
 (`--url`, `--cloudflare`, `--proxy-ip`, `--port`...), it only updates those settings and restarts
@@ -75,7 +80,8 @@ sudo chown 1000:1000 refund-me-secret.txt && sudo chmod 600 refund-me-secret.txt
 docker compose up -d
 ```
 
-To change the port, set `REFUND_ME_PORT=8080` in `.env`. To run a PostgreSQL database alongside
+To change the port later, run the installer again with `--port 8080` (it keeps a port published
+on `127.0.0.1` only that way), or set `REFUND_ME_PORT=8080` in `.env` and run `docker compose up -d`. To run a PostgreSQL database alongside
 the app (handy when there's no database server yet):
 
 ```sh

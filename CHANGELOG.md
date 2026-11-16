@@ -4,6 +4,13 @@ Each version is published as `ghcr.io/oriyahoo/refund-me:<version>` (and `:lates
 upgrade: `docker compose pull && docker compose up -d` in your `refund-me` folder. Database
 changes apply themselves on start; take a backup first.
 
+## Unreleased
+
+- **Installer: choose the port.** A first install in a terminal now also asks for the port on the
+  server (Enter keeps 3855). A number outside 1-65535, or a port something else already uses, is
+  refused before anything starts; `--port` is checked the same way. Changing only the port of an
+  install published on `127.0.0.1` (Cloudflare Tunnel) keeps it on `127.0.0.1`.
+
 ## 0.3.0
 
 - **Log forwarding to your SIEM** (Admin → System → Log forwarding). Every activity-log entry
