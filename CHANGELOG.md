@@ -4,8 +4,18 @@ Each version is published as `ghcr.io/oriyahoo/refund-me:<version>` (and `:lates
 upgrade: `docker compose pull && docker compose up -d` in your `refund-me` folder. Database
 changes apply themselves on start; take a backup first.
 
-## Unreleased
+## 0.3.1
 
+- **HTTPS from the app itself.** `HTTPS=self-signed` (the installer's `--https`, also offered when
+  you choose Cloudflare's proxy): the app makes its own certificate on first start and answers
+  HTTPS only, on the same port. For Cloudflare's proxy in SSL/TLS mode "Full" when nothing else on
+  the server handles HTTPS. Or give it your own certificate with `TLS_CERT_FILE` and
+  `TLS_KEY_FILE` (a Cloudflare Origin Certificate works with "Full (strict)").
+- **A newer PDF reader** (pdf.js 6.5). Some PDF receipts that took long to open, or didn't open,
+  are read right away.
+- **The Refund-Me logo** in the browser tab and as the icon of the installed app.
+- **Log forwarding in the configuration backup.** The SIEM / Axiom settings are saved and
+  restored with the rest; a token is kept only when the destination is the same.
 - **Installer: choose the port.** A first install in a terminal now also asks for the port on the
   server (Enter keeps 3855). A number outside 1-65535, or a port something else already uses, is
   refused before anything starts; `--port` is checked the same way. Changing only the port of an
