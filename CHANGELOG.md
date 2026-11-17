@@ -4,6 +4,12 @@ Each version is published as `ghcr.io/oriyahoo/refund-me:<version>` (and `:lates
 upgrade: `docker compose pull && docker compose up -d` in your `refund-me` folder. Database
 changes apply themselves on start; take a backup first.
 
+## 0.3.2
+
+- **Flags in the language menu.** The globe shows a small flag of the app's current language, and
+  its menu lists the languages by their flags (the language's name shows on hover and is read out
+  by screen readers).
+
 ## 0.3.1
 
 - **HTTPS from the app itself.** `HTTPS=self-signed` (the installer's `--https`, also offered when
