@@ -178,6 +178,7 @@ curl -fsSL https://raw.githubusercontent.com/oriyahoo/refund-me-app/main/install
 |---|---|
 | `--url <address>` | The address people will use (for links in emails and sign-in) |
 | `--cloudflare` | People come through Cloudflare (its proxy or a Cloudflare Tunnel) |
+| `--https` | The app serves HTTPS itself with a self-signed certificate (behind Cloudflare in "Full" mode, nothing else on the server) |
 | `--proxy-ip <list>` | Your reverse proxy's address or range (nginx, Traefik, Coolify...), e.g. `172.18.0.0/16` |
 | `--postgres` | Also run a bundled PostgreSQL database |
 | `--port <n>` | The port on this server, 1-65535 (default 3855) |

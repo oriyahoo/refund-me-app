@@ -15,6 +15,9 @@
 #   --cloudflare-tunnel people reach it through a Cloudflare Tunnel (cloudflared) on this server:
 #                       the port is published on 127.0.0.1 only, so the network can't reach the
 #                       app around the tunnel, and the tunnel's header is believed
+#   --https             the app serves HTTPS itself, with a self-signed certificate it makes
+#                       (HTTPS=self-signed): for Cloudflare's proxy in "Full" mode with nothing
+#                       else on this server to handle HTTPS
 #   --proxy-ip <list>   the address(es) of your reverse proxy (nginx, Traefik, Coolify...),
 #                       comma-separated, e.g. 172.18.0.0/16 (TRUSTED_PROXIES)
 #   --postgres          also run a bundled PostgreSQL database, with a generated admin password
@@ -39,6 +42,7 @@ PORT=""
 URL=""
 CLOUDFLARE=0
 TUNNEL=0
+HTTPS_ON=0
 PROXY_IP=""
 PROMPT=1
 START=1
@@ -53,6 +57,7 @@ while [ $# -gt 0 ]; do
     --cloudflare) CLOUDFLARE=1; SETTINGS=1; shift ;;
     --cloudflare-tunnel) TUNNEL=1; SETTINGS=1; shift ;;
     --proxy-ip) need "$@"; PROXY_IP="$2"; SETTINGS=1; shift 2 ;;
+    --https) HTTPS_ON=1; SETTINGS=1; shift ;;
     --postgres) POSTGRES=1; shift ;;
     --port) need "$@"; PORT="$2"; SETTINGS=1; shift 2 ;;
     --upgrade) UPGRADE=1; shift ;;
@@ -74,6 +79,7 @@ valid_ips() { printf '%s' "$1" | grep -Eq '^[0-9A-Fa-f.:/]+(,[0-9A-Fa-f.:/]+)*$'
 valid_port() { case "$1" in ''|*[!0-9]*|0*) return 1 ;; esac; [ ${#1} -le 5 ] && [ "$1" -le 65535 ]; }
 [ -z "$PORT" ] || valid_port "$PORT" || fail "--port takes a number from 1 to 65535."
 [ "$CLOUDFLARE" = "0" ] || [ "$TUNNEL" = "0" ] || fail "Choose --cloudflare (Cloudflare's proxy) or --cloudflare-tunnel, not both."
+[ "$HTTPS_ON" = "0" ] || [ "$TUNNEL" = "0" ] || fail "--https isn't needed with --cloudflare-tunnel: the tunnel already carries HTTPS."
 
 # What it needs.
 command -v docker >/dev/null 2>&1 || fail "Docker isn't installed. See https://docs.docker.com/engine/install/"
@@ -169,7 +175,11 @@ if [ "$PROMPT" = "1" ] && [ "$FIRST" = "1" ] && [ -z "$URL" ] && [ "$CLOUDFLARE"
   echo "     4) Directly on this server's port, or not sure yet"
   ask "   Choose 1, 2, 3 or 4 [4]: "
   case "$REPLY" in
-    1) CLOUDFLARE=1 ;;
+    1) CLOUDFLARE=1
+       echo "   Nothing else on this server handles HTTPS (no nginx, Traefik or Caddy here)? Then the app can"
+       echo "   serve it itself, with a self-signed certificate (Cloudflare SSL/TLS mode \"Full\")."
+       ask "   Serve HTTPS from the app? [Y/n]: "
+       case "$REPLY" in n|N|no|NO) ;; *) HTTPS_ON=1 ;; esac ;;
     2) TUNNEL=1 ;;
     3) while :; do
          ask "   The proxy's address or range, e.g. 172.18.0.0/16 (Enter to skip): "
@@ -204,6 +214,10 @@ if [ "$FIRST" = "1" ] || [ "$SHOWN" != "$CURRENT" ]; then
 fi
 [ -z "$PORT" ] || port_note "$PORT"
 [ -z "$PORT" ] || [ "$TUNNEL" = "1" ] || { set_env REFUND_ME_PORT "$BIND$PORT"; echo "REFUND_ME_PORT=$BIND$PORT: the app is on port $PORT of this server."; }
+if [ "$HTTPS_ON" = "1" ]; then
+  set_env HTTPS self-signed
+  echo "HTTPS=self-signed: the app serves HTTPS only, with a certificate it makes on first start. In Cloudflare, use SSL/TLS mode \"Full\" (not \"Full (strict)\") for this host name."
+fi
 if [ -n "$URL" ]; then
   set_env APP_URL "${URL%/}"
   echo "APP_URL=${URL%/}: links in emails and sign-in use this address."
@@ -230,6 +244,9 @@ if [ "$CLOUDFLARE" = "1" ]; then
   PROXY_IP="$(cloudflare_ranges)${PROXY_IP:+,$PROXY_IP}"
   echo "CLIENT_IP_HEADER and TRUSTED_PROXIES: the visitor's address is read from Cloudflare's header, and believed only from Cloudflare's own addresses."
   echo "Note: Cloudflare Access and Cloudflare's rules protect only what comes through Cloudflare. Allow port $SHOWN on this server's firewall from Cloudflare's addresses only (https://www.cloudflare.com/ips/), or use --cloudflare-tunnel."
+  if [ "$HTTPS_ON" = "1" ] && [ "$SHOWN" != "443" ]; then
+    echo "Note: Cloudflare connects to port 443 on the server. For port $SHOWN, add an Origin Rule in Cloudflare (Rules → Origin Rules) that sends this host name to port $SHOWN, or use --port 443."
+  fi
 fi
 if [ "$TUNNEL" = "1" ]; then
   set_env CLIENT_IP_HEADER "cf-connecting-ip,x-forwarded-for"
@@ -290,7 +307,10 @@ case "$published" in
   127.0.0.1:*) ip=127.0.0.1 ;;
   *) ip=$(hostname -I 2>/dev/null | awk '{print $1}') ;;
 esac
-say "Refund-Me is starting. Open http://${ip:-<this server>}:${port:-3855} to run the setup wizard."
+scheme=http
+grep -Eq '^(HTTPS=self-signed|TLS_CERT_FILE=.)' .env && scheme=https
+say "Refund-Me is starting. Open $scheme://${ip:-<this server>}:${port:-3855} to run the setup wizard."
+[ "$scheme" = "http" ] || echo "(Your browser warns about the self-signed certificate there; through Cloudflare it doesn't.)"
 url=$(sed -n 's/^APP_URL=//p' .env | tail -1)
 [ -z "$url" ] || echo "Once your proxy points $url at this server, people use that address."
 if [ "$POSTGRES" = "1" ]; then

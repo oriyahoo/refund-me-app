@@ -57,6 +57,13 @@ is refused) (see
 - `--cloudflare-tunnel`: people come through a Cloudflare Tunnel (cloudflared) on this server.
   The port is published on `127.0.0.1` only (`REFUND_ME_PORT=127.0.0.1:3855`), so nothing on the
   network can reach the app around the tunnel; point the tunnel at `http://localhost:3855`.
+- `--https`: the app serves HTTPS itself (`HTTPS=self-signed`), with a certificate it makes on
+  first start and keeps in its data volume, on the same port. For Cloudflare's proxy with nothing
+  else on the server to handle HTTPS: set Cloudflare's SSL/TLS mode to **Full**, not "Full
+  (strict)", which refuses a self-signed certificate (a Configuration Rule can set it for this
+  host name only). With a certificate of your own (a Cloudflare Origin Certificate works with
+  "Full (strict)"), copy it and its key into the data volume and set `TLS_CERT_FILE` and
+  `TLS_KEY_FILE` in `.env` instead. Asked in a terminal when you choose Cloudflare's proxy.
 - `--proxy-ip <list>`: `TRUSTED_PROXIES`, your proxy's addresses or ranges.
 - `--postgres`: a bundled PostgreSQL with a generated admin password.
 - `--port <n>`: the port on this server, 1-65535 (default 3855). The installer stops if
