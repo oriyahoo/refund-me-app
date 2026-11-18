@@ -4,6 +4,11 @@ Each version is published as `ghcr.io/oriyahoo/refund-me:<version>` (and `:lates
 upgrade: `docker compose pull && docker compose up -d` in your `refund-me` folder. Database
 changes apply themselves on start; take a backup first.
 
+## 0.3.4
+
+- **Receipt numbers in the expense report.** The PDF report has a receipt-number column after the
+  supplier, in place of the description column.
+
 ## 0.3.3
 
 - **Parking receipts need no description.** An expense whose type is parking (חניה, Parking,
