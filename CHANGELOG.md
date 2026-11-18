@@ -4,6 +4,15 @@ Each version is published as `ghcr.io/oriyahoo/refund-me:<version>` (and `:lates
 upgrade: `docker compose pull && docker compose up -d` in your `refund-me` folder. Database
 changes apply themselves on start; take a backup first.
 
+## 0.3.3
+
+- **Parking receipts need no description.** An expense whose type is parking (חניה, Parking,
+  Stationnement, Estacionamiento) can be saved and submitted with the description empty; every
+  other type still needs one.
+- **No zooming the page on phones.** Pinch and double-tap no longer zoom the app's pages; the
+  receipt viewer still zooms the receipt (pinch, double-tap, the + and − buttons).
+- **The version once.** On phones the profile page showed the version twice.
+
 ## 0.3.2
 
 - **Flags in the language menu.** The globe shows a small flag of the app's current language, and
