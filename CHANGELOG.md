@@ -4,6 +4,12 @@ Each version is published as `ghcr.io/oriyahoo/refund-me:<version>` (and `:lates
 upgrade: `docker compose pull && docker compose up -d` in your `refund-me` folder. Database
 changes apply themselves on start; take a backup first.
 
+## 0.3.5
+
+- **Amazon S3 storage works.** Testing or moving to Amazon S3 failed with "HTTP 501
+  NotImplemented": uploads went out without their size, which Amazon S3 refuses (Cloudflare R2
+  and MinIO accept it). They now carry it.
+
 ## 0.3.4
 
 - **Receipt numbers in the expense report.** The PDF report has a receipt-number column after the
