@@ -212,8 +212,8 @@ database, "trust" for email, "accept any certificate" for syslog).
 | Option | Use | Notes |
 |---|---|---|
 | This server | small installs | files in the data volume (`/data/files`); back it up |
-| Cloudflare R2 | off-server storage, no download fees | a private bucket and an R2 API token with **Object Read & Write** on that bucket only; the account ID is on the R2 overview page. EU-jurisdiction buckets: choose the EU location |
-| S3-compatible | AWS S3, MinIO, Wasabi | a private bucket; the key needs `s3:PutObject`, `s3:GetObject`, `s3:DeleteObject` on it. For MinIO tick "bucket in the path" |
+| Cloudflare R2 | off-server storage, no download fees | a private bucket and an R2 API token with **Object Read & Write** on that bucket only; the account ID is on the R2 overview page. EU-jurisdiction buckets: choose the EU location. Step by step: [below](#cloudflare-r2-step-by-step) |
+| S3-compatible | AWS S3, MinIO, Wasabi | a private bucket; the key needs `s3:PutObject`, `s3:GetObject`, `s3:DeleteObject` on its files and `s3:ListBucket` on the bucket (for moving files). For MinIO tick "bucket in the path". Amazon S3 step by step: [below](#amazon-s3-step-by-step) |
 | Azure Blob Storage | Azure | a private container and a container **SAS token** with read, write, delete (and **list**, for moving to another storage later); renew it before it expires |
 
 The files can be moved to another storage later: see the next section.
@@ -222,6 +222,98 @@ Addresses typed into the app (storage, database server, mail server, AI server) 
 on your network or the internet, except cloud metadata and link-local addresses
 (169.254.0.0/16, fe80::/10, Azure's 168.63.129.16, 0.0.0.0): names are looked up, and checked
 again before each request, and storage and AI requests don't follow redirects.
+
+### Cloudflare R2 step by step
+
+In the Cloudflare dashboard:
+
+1. **The bucket.** **R2 Object Storage → Create bucket**:
+   - **Name**: lowercase (e.g. `company-refund-me-receipts`).
+   - **Location**: automatic, or **Specify jurisdiction → European Union (EU)** to keep the files
+     in the EU. It can't be changed later, and the app has to be told (step 4).
+   - Leave **Public access** off (the default). The app reads the files itself; they're never
+     public.
+2. **The access key.** **R2 Object Storage → Manage API tokens → Create API token** (an account
+   API token):
+   - **Permissions**: **Object Read & Write**.
+   - **Specify bucket(s)**: only this bucket.
+   - **TTL**: forever, or a date; the app stops reaching its files when the token expires, so
+     put a reminder before it.
+   - Create, then copy the **Access Key ID** and **Secret Access Key** under "S3 clients" (shown
+     once; keep them in a password manager).
+3. **The account ID**: on the R2 overview page, under Account details (32 characters).
+4. **In the app** (the wizard, or Admin → System → Move files to another storage), **Cloudflare
+   R2**:
+
+   | Field | Value |
+   |---|---|
+   | Account ID | from step 3 |
+   | Bucket | the bucket's name |
+   | Access key ID / Secret access key | from step 2 |
+   | Location | **Standard (automatic)**, or **European Union (EU)** for an EU bucket: it must match the bucket |
+
+   **Test connection** writes, reads and deletes a small file. Then **Copy files and switch**.
+
+R2 doesn't keep old versions of a deleted or overwritten file the way S3 versioning does: keep
+the database and file backups (see [Backups](#backups)).
+
+### Amazon S3 step by step
+
+In the AWS console:
+
+1. **The bucket.** S3 → **Create bucket**:
+   - **Bucket type**: General purpose. **Name**: unique across AWS, lowercase (e.g.
+     `company-refund-me-receipts`).
+   - **Region**: the server's region when it runs in AWS (faster, and no data-transfer charges).
+   - **Object Ownership**: ACLs disabled. **Block all public access**: on. The app reads the files
+     itself; they're never public.
+   - **Encryption**: the default (SSE-S3).
+2. **A user for the app only.** IAM → **Users → Create user** (e.g. `refund-me-storage`), no
+   console access. **Attach policies directly → Create policy**, JSON tab, with the bucket's name:
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       { "Effect": "Allow", "Action": "s3:ListBucket",
+         "Resource": "arn:aws:s3:::company-refund-me-receipts" },
+       { "Effect": "Allow", "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
+         "Resource": "arn:aws:s3:::company-refund-me-receipts/*" }
+     ]
+   }
+   ```
+   That's all the app does: list, read, write and delete files, in that bucket only. Attach the
+   policy to the user.
+3. **The access key.** The user → **Security credentials → Create access key** → "Application
+   running outside AWS". Copy the **Access key ID** and the **Secret access key** (shown once;
+   keep it in a password manager).
+4. **In the app** (the wizard, or Admin → System → Move files to another storage), **S3
+   compatible**:
+
+   | Field | Value |
+   |---|---|
+   | Endpoint | empty (Amazon S3) |
+   | Bucket | the bucket's name |
+   | Region | the bucket's region, e.g. `eu-west-1` (the field's placeholder is only an example) |
+   | Access key ID / Secret access key | from step 3 |
+   | Bucket in the path | unticked |
+
+   **Test connection** writes, reads and deletes a small file. Then **Copy files and switch**.
+5. **Recommended: versioning**, so a deleted or overwritten receipt can be recovered. The bucket →
+   **Properties → Bucket Versioning → Edit → Enable**. Old versions are kept (and paid for) until
+   removed, so add a rule: **Management → Lifecycle rules → Create lifecycle rule**, all objects,
+   with **Permanently delete noncurrent versions** after e.g. 90 days and **Delete expired object
+   delete markers or incomplete multipart uploads** (incomplete uploads after 7 days). A deleted
+   file is then recoverable for 90 days: **Objects → Show versions**, and delete its "Delete
+   marker" or download an older version. Versioning can be suspended later, not removed; the app
+   needs no change either way.
+
+### After moving the files
+
+The server log says `[move] files moved to s3: N copied, 0 missing` (R2 is S3-compatible, so it
+says `s3` too). Once the app works from the new storage (old receipts open, a new one saves, a
+report with receipts exports, a test draft deletes), the old copies in the data volume
+(`/data/files`) can be deleted; `/data/config.json` stays.
+
 
 ## Moving to another database or storage
 
@@ -597,6 +689,17 @@ The main ones:
 - **SSO says the redirect URI doesn't match**: the app's address (Admin → System) must be
   exactly the address people use, including `https://` and no trailing slash.
 - **Sign-in links in emails point to the wrong place**: same as above.
+- **Testing S3 or R2 storage fails**: the message has the storage's own error code.
+  - `HTTP 501 NotImplemented` (Amazon S3): an app before 0.3.5 (uploads went out without their
+    size, which Amazon S3 refuses). Upgrade.
+  - `HTTP 403 AccessDenied`: S3: the policy doesn't name this bucket, or isn't attached to the
+    user. R2: the token isn't for this bucket, or is read-only.
+  - `HTTP 404 NoSuchBucket` on R2 with a bucket that exists: the Location doesn't match the
+    bucket's (an EU bucket needs "European Union (EU)").
+  - `HTTP 403 InvalidAccessKeyId` / `SignatureDoesNotMatch`: the access key ID or secret is wrong.
+  - `HTTP 404 NoSuchBucket`: the bucket's name.
+  - `HTTP 400 AuthorizationHeaderMalformed`, `PermanentRedirect` or a redirect: the region isn't
+    the bucket's.
 - **Health check**: `GET /api/health` returns `{"status":"ok"}` while the app answers,
   `{"status":"setup"}` before the wizard, and 503 when the database has been unreachable for about
   two minutes. A busy moment, with every database connection in use, still answers `ok` (with
