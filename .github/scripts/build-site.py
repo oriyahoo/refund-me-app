@@ -35,6 +35,8 @@ KEEP = {
     # The SIEM illustration: a syslog feed, as code.
     "SIEM", "Syslog · TLS", "siem.acme.example:6514", "auth.signedIn", "expense.approved", "settings.smtp.updated",
     "error.task", "dan@acme.example", "maya@acme.example", "info", "notice", "error",
+    # The company's view in the hero and the tiles under it.
+    "expenses.acme.example/accounting", "Microsoft Entra ID", "month.closed",
 }
 
 FLAGS = {
@@ -84,11 +86,14 @@ def fr_typo(s: str) -> str:
 
 # Amounts and receipt figures, per language.
 MONEY = {
-    "fr": {"$1,284.60": "1 284,60 €", "$28.45": "28,45 €", "$186.50": "186,50 €", "$412.00": "412,00 €",
+    "fr": {"$18,420.60": "18 420,60 €", "$2,031.75": "2 031,75 €", "$388.20": "388,20 €",
+           "$1,284.60": "1 284,60 €", "$28.45": "28,45 €", "$186.50": "186,50 €", "$412.00": "412,00 €",
            "118.00": "118,00", "40.05": "40,05", "28.45": "28,45", "186.50": "186,50"},
-    "es": {"$1,284.60": "1.284,60 €", "$28.45": "28,45 €", "$186.50": "186,50 €", "$412.00": "412,00 €",
+    "es": {"$18,420.60": "18.420,60 €", "$2,031.75": "2.031,75 €", "$388.20": "388,20 €",
+           "$1,284.60": "1.284,60 €", "$28.45": "28,45 €", "$186.50": "186,50 €", "$412.00": "412,00 €",
            "118.00": "118,00", "40.05": "40,05", "28.45": "28,45", "186.50": "186,50"},
-    "he": {"$1,284.60": "₪1,284.60", "$28.45": "₪28.45", "$186.50": "₪186.50", "$412.00": "₪412.00"},
+    "he": {"$18,420.60": "₪18,420.60", "$2,031.75": "₪2,031.75", "$388.20": "₪388.20",
+           "$1,284.60": "₪1,284.60", "$28.45": "₪28.45", "$186.50": "₪186.50", "$412.00": "₪412.00"},
 }
 
 T = {"fr": {}, "es": {}, "he": {}}
@@ -530,6 +535,132 @@ add("Give your people their evenings back", "Rendez leurs soirées à vos collab
 add("Receipts in, reimbursements out, with the controls your auditors expect. Installed on your server, in Hebrew and English, on every device.", "Des reçus en entrée, des remboursements en sortie, avec les contrôles qu'attendent vos auditeurs. Installé sur votre serveur, en hébreu et en anglais, sur tous les appareils.", "Entran tickets, salen reembolsos, con los controles que esperan tus auditores. Instalado en tu servidor, en hebreo e inglés, en todos los dispositivos.", "קבלות נכנסות, החזרים יוצאים, עם הבקרות שהמבקרים מצפים להן. מותקן על השרת שלכם, בעברית ובאנגלית, בכל מכשיר.")
 add("Refund-Me · expense reimbursement for Israeli companies", "Refund-Me · remboursement de notes de frais pour les entreprises israéliennes", "Refund-Me · reembolso de gastos para empresas israelíes", "Refund-Me · החזר הוצאות לחברות בישראל")
 add("· The illustrations use made-up data.", "· Les illustrations utilisent des données fictives.", "· Las ilustraciones usan datos inventados.", "· האיורים משתמשים בנתונים בדויים.")
+
+# --- Daylight (Nov 2026): the page speaks to the business. The hero with the company's view, the
+# facts, the "For your company" tiles and the four steps.
+add("Expense management for Israeli companies: collect employees' receipts, approve them in the right order and export every month to accounting. On your own server, in Hebrew, English, French and Spanish.",
+    "Gestion des notes de frais pour les entreprises israéliennes : collectez les reçus des employés, approuvez-les dans le bon ordre et exportez chaque mois vers la comptabilité. Sur votre propre serveur, en hébreu, anglais, français et espagnol.",
+    "Gestión de gastos para empresas israelíes: recoge los tickets de los empleados, apruébalos en el orden correcto y exporta cada mes a contabilidad. En tu propio servidor, en hebreo, inglés, francés y español.",
+    "ניהול הוצאות עובדים לחברות בישראל: אוספים את הקבלות של העובדים, מאשרים אותן בסדר הנכון ומייצאים כל חודש להנהלת החשבונות. על השרת שלכם, בעברית, אנגלית, צרפתית וספרדית.")
+add("For your company", "Pour votre entreprise", "Para tu empresa", "לחברה שלכם")
+add("Expense management for companies, on your own server", "La gestion des notes de frais pour les entreprises, sur votre propre serveur", "Gestión de gastos para empresas, en tu propio servidor", "ניהול הוצאות עובדים לחברות, על השרת שלכם")
+add("Employee expenses,", "Les notes de frais,", "Los gastos de empleados,", "הוצאות העובדים,")
+add("under control.", "sous contrôle.", "bajo control.", "בשליטה.")
+add("One place for your company to collect employees' receipts, check and approve them, and send every month to accounting. No paper, no spreadsheets, no chasing.",
+    "Un seul endroit pour collecter les reçus de vos employés, les vérifier, les approuver et transmettre chaque mois à la comptabilité. Sans papier, sans tableur, sans relances.",
+    "Un solo lugar para que tu empresa recoja los tickets de los empleados, los revise y apruebe, y envíe cada mes a contabilidad. Sin papel, sin hojas de cálculo, sin perseguir a nadie.",
+    "מקום אחד שבו החברה אוספת את הקבלות של העובדים, בודקת ומאשרת אותן, ומעבירה כל חודש להנהלת החשבונות. בלי ניירת, בלי גיליונות, בלי לרדוף אחרי אף אחד.")
+add("Illustration: accounting's page with every employee's month, and an employee's phone scanning a receipt",
+    "Illustration : la page de la comptabilité avec le mois de chaque employé, et le téléphone d'un employé qui photographie un reçu",
+    "Ilustración: la página de contabilidad con el mes de cada empleado, y el móvil de un empleado escaneando un ticket",
+    "איור: העמוד של הנהלת החשבונות עם החודש של כל עובד, והטלפון של עובד שסורק קבלה")
+add("Accounting · November 2026", "Comptabilité · novembre 2026", "Contabilidad · noviembre de 2026", "הנהלת חשבונות · נובמבר 2026")
+add("Everyone's months", "Les mois de tous", "Los meses de todos", "החודשים של כולם")
+add("Remind everyone", "Relancer tout le monde", "Avisar a todos", "תזכורת לכולם")
+add("Export to Excel", "Exporter vers Excel", "Exportar a Excel", "ייצוא לאקסל")
+add("To refund", "À rembourser", "A reembolsar", "להחזר")
+add("Submitted", "Remis", "Entregados", "הוגשו")
+add("42 of 48", "42 sur 48", "42 de 48", "42 מתוך 48")
+add("Waiting for you", "Vous attendent", "Te esperan", "ממתינים לכם")
+add("9 months", "9 mois", "9 meses", "9 חודשים")
+add("Flagged", "Signalés", "Con aviso", "מסומנות")
+add("3 receipts", "3 reçus", "3 tickets", "3 קבלות")
+add("Department", "Service", "Departamento", "מחלקה")
+add("Receipts", "Reçus", "Tickets", "קבלות")
+add("Status", "Statut", "Estado", "סטטוס")
+add("Sales", "Ventes", "Ventas", "מכירות")
+add("Operations", "Opérations", "Operaciones", "תפעול")
+add("Development", "Développement", "Desarrollo", "פיתוח")
+add("Support", "Support", "Soporte", "תמיכה")
+add("Maya Stern", "Emma Laurent", "Marta Sánchez", "מאיה שטרן")
+add("Dan Peretz", "Louis Moreau", "Diego Torres", "דן פרץ")
+add("Flagged: possible duplicate", "Signalé : doublon possible", "Aviso: posible duplicado", "מסומן: כפילות אפשרית")
+add("Waiting for accounting", "En attente de la comptabilité", "Pendiente de contabilidad", "ממתין להנהלת החשבונות")
+add("Not submitted, reminded", "Non remis, relancé", "Sin entregar, avisado", "לא הוגש, נשלחה תזכורת")
+add("3 receipts flagged", "3 reçus signalés", "3 tickets con aviso", "3 קבלות מסומנות")
+add("before anything is paid", "avant tout paiement", "antes de pagar nada", "לפני שמשלמים משהו")
+# The facts: each follows its number (1, 10, 4, 0).
+add("place for every employee's receipts", "seul endroit pour les reçus de tous les employés", "lugar para los tickets de todos los empleados", "מקום לקבלות של כל העובדים")
+add("built-in controls auditors look for", "contrôles intégrés que cherchent les auditeurs", "controles integrados que buscan los auditores", "בקרות מובנות שהמבקרים מחפשים")
+add("languages for your people", "langues pour vos équipes", "idiomas para tu gente", "שפות לעובדים שלכם")
+add("bytes leave your server", "octet ne quitte votre serveur", "bytes salen de tu servidor", "בייטים יוצאים מהשרת שלכם")
+add("Built for the people who run expenses", "Conçu pour ceux qui gèrent les notes de frais", "Hecho para quienes gestionan los gastos", "נבנה בשביל מי שמנהל את ההוצאות")
+add("What finance, managers and IT need to collect, approve and close each month.",
+    "Ce dont la finance, les managers et l'informatique ont besoin pour collecter, approuver et clôturer chaque mois.",
+    "Lo que finanzas, los responsables y TI necesitan para recoger, aprobar y cerrar cada mes.",
+    "מה שהכספים, המנהלים וה-IT צריכים כדי לאסוף, לאשר ולסגור כל חודש.")
+add("Every employee's month on one page", "Le mois de chaque employé sur une seule page", "El mes de cada empleado en una sola página", "החודש של כל עובד בעמוד אחד")
+add("See who has submitted, what is waiting for approval and what is flagged. Approve one receipt, several, or a whole month.",
+    "Voyez qui a remis son mois, ce qui attend une approbation et ce qui est signalé. Approuvez un reçu, plusieurs, ou un mois entier.",
+    "Mira quién ha entregado, qué espera aprobación y qué tiene avisos. Aprueba un ticket, varios o un mes entero.",
+    "רואים מי הגיש, מה ממתין לאישור ומה מסומן. מאשרים קבלה אחת, כמה קבלות או חודש שלם.")
+add("Your data stays in the company", "Vos données restent dans l'entreprise", "Tus datos se quedan en la empresa", "המידע נשאר בחברה")
+add("Installed on your server or cloud account. You own the database and the files.",
+    "Installé sur votre serveur ou votre compte cloud. La base de données et les fichiers sont à vous.",
+    "Instalado en tu servidor o tu cuenta en la nube. La base de datos y los archivos son tuyos.",
+    "מותקן על השרת או חשבון הענן שלכם. מסד הנתונים והקבצים שלכם.")
+add("bytes leave", "octet ne sort", "bytes salen", "בייטים יוצאים")
+add("Approvals in the right order", "Des approbations dans le bon ordre", "Aprobaciones en el orden correcto", "אישורים בסדר הנכון")
+add("The employee's manager first, if you want that step, then accounting. Nobody approves their own expenses.",
+    "D'abord le manager de l'employé, si vous voulez cette étape, puis la comptabilité. Personne n'approuve ses propres dépenses.",
+    "Primero el responsable del empleado, si quieres ese paso, y luego contabilidad. Nadie aprueba sus propios gastos.",
+    "קודם המנהל של העובד, אם רוצים את השלב הזה, ואז הנהלת החשבונות. אף אחד לא מאשר את ההוצאות של עצמו.")
+add("Flags before you pay", "Des alertes avant de payer", "Avisos antes de pagar", "סימונים לפני שמשלמים")
+add("Marked before anything is approved, so nobody checks every receipt by eye.",
+    "Signalés avant toute approbation : plus besoin de vérifier chaque reçu à l'œil.",
+    "Marcados antes de aprobar nada, para que nadie revise cada ticket a ojo.",
+    "מסומנים לפני שמאשרים משהו, כך שאף אחד לא בודק כל קבלה בעין.")
+add("Possible duplicate", "Doublon possible", "Posible duplicado", "כפילות אפשרית")
+add("Over the monthly limit", "Au-dessus du plafond mensuel", "Por encima del límite mensual", "חריגה מהתקרה החודשית")
+add("Straight into your books", "Directement dans votre comptabilité", "Directo a tu contabilidad", "ישר להנהלת החשבונות")
+add("The month exported with account (GL) codes, ready to import, and a branded PDF per employee.",
+    "Le mois exporté avec les numéros de compte, prêt à importer, et un PDF à vos couleurs par employé.",
+    "El mes exportado con los códigos contables, listo para importar, y un PDF con tu marca por empleado.",
+    "החודש מיוצא עם קודי חשבון, מוכן לקליטה, ו-PDF ממותג לכל עובד.")
+add("No chasing at month end", "Plus de relances en fin de mois", "Sin perseguir a nadie a fin de mes", "בלי לרדוף אחרי אנשים בסוף החודש")
+add("Automatic reminders before the due day, and one click to remind everyone who hasn't submitted.",
+    "Des rappels automatiques avant l'échéance, et un clic pour relancer tous ceux qui n'ont pas remis leur mois.",
+    "Recordatorios automáticos antes del plazo, y un clic para avisar a todos los que no han entregado.",
+    "תזכורות אוטומטיות לפני מועד ההגשה, ולחיצה אחת כדי להזכיר לכל מי שעוד לא הגיש.")
+add("6 people haven't submitted November", "6 personnes n'ont pas remis novembre", "6 personas no han entregado noviembre", "6 אנשים עוד לא הגישו את נובמבר")
+add("Easy for your people, so they use it", "Simple pour vos équipes, donc utilisé", "Fácil para tu gente, así que lo usan", "קל לעובדים, אז הם משתמשים")
+add("A photo when they pay, and the app fills in the rest. On any phone, in their own language.",
+    "Une photo au moment de payer, et l'application remplit le reste. Sur n'importe quel téléphone, dans leur langue.",
+    "Una foto al pagar, y la aplicación rellena el resto. En cualquier móvil, en su idioma.",
+    "צילום ברגע התשלום, והאפליקציה ממלאת את השאר. בכל טלפון, בשפה שלהם.")
+add("Your work accounts, your rules", "Vos comptes professionnels, vos règles", "Tus cuentas de trabajo, tus reglas", "חשבונות העבודה שלכם, הכללים שלכם")
+add("People sign in with the account they already have. Disable a work account and that person is out.",
+    "Chacun se connecte avec le compte qu'il a déjà. Désactivez un compte professionnel et la personne n'a plus accès.",
+    "Cada persona entra con la cuenta que ya tiene. Desactiva una cuenta de trabajo y esa persona queda fuera.",
+    "נכנסים עם החשבון שכבר יש. משביתים חשבון עבודה, והאדם הזה בחוץ.")
+add("Everything on the record", "Tout est consigné", "Todo queda registrado", "הכול מתועד")
+add("Who did what, when and from where, in a log nobody can edit. Forwarded to your SIEM if you want.",
+    "Qui a fait quoi, quand et d'où, dans un journal que personne ne peut modifier. Transmis à votre SIEM si vous le souhaitez.",
+    "Quién hizo qué, cuándo y desde dónde, en un registro que nadie puede editar. Reenviado a tu SIEM si quieres.",
+    "מי עשה מה, מתי ומאיפה, ביומן שאף אחד לא יכול לערוך. מועבר ל-SIEM שלכם אם רוצים.")
+add("One flow, from the receipt to the books", "Un seul flux, du reçu à la comptabilité", "Un solo flujo, del ticket a la contabilidad", "תהליך אחד, מהקבלה ועד הנהלת החשבונות")
+add("Collect", "Collecter", "Recoger", "אוספים")
+add("Employees photograph receipts when they pay, or upload photos and PDFs.",
+    "Les employés photographient leurs reçus au moment de payer, ou importent des photos et des PDF.",
+    "Los empleados fotografían los tickets al pagar, o suben fotos y PDF.",
+    "העובדים מצלמים קבלות ברגע התשלום, או מעלים תמונות וקובצי PDF.")
+add("The app reads each receipt and flags duplicates, limits and missing details.",
+    "L'application lit chaque reçu et signale les doublons, les dépassements de plafond et les informations manquantes.",
+    "La aplicación lee cada ticket y avisa de duplicados, límites superados y datos que faltan.",
+    "האפליקציה קוראת כל קבלה ומסמנת כפילויות, חריגות מתקרה ופרטים חסרים.")
+add("Managers, then accounting. Anything wrong goes back with a note.",
+    "Les managers, puis la comptabilité. Ce qui ne va pas est renvoyé avec une note.",
+    "Los responsables y luego contabilidad. Lo que esté mal vuelve con una nota.",
+    "המנהלים, ואז הנהלת החשבונות. מה שלא תקין חוזר עם הערה.")
+add("Close", "Clôturer", "Cerrar", "סוגרים")
+add("Export to Excel or CSV with GL codes, and close the month.",
+    "Exportez vers Excel ou CSV avec les numéros de compte, et clôturez le mois.",
+    "Exporta a Excel o CSV con los códigos contables y cierra el mes.",
+    "מייצאים לאקסל או ל-CSV עם קודי חשבון, וסוגרים את החודש.")
+add("For every role", "Pour chaque rôle", "Para cada rol", "לכל תפקיד")
+add("Installed on your server. Owned by your company.", "Installé sur votre serveur. Propriété de votre entreprise.", "Instalado en tu servidor. Propiedad de tu empresa.", "מותקן על השרת שלכם. בבעלות החברה שלכם.")
+add("More", "Plus", "Más", "עוד")
+add("The illustrations use made-up data.", "Les illustrations utilisent des données fictives.", "Las ilustraciones usan datos inventados.", "האיורים משתמשים בנתונים בדויים.")
 
 # --- The license: English only ------------------------------------------------------------------
 LICENSE_REDIRECT = """<!doctype html>
