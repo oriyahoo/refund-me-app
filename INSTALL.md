@@ -552,6 +552,14 @@ docker compose up -d
 (or run the installer again). With `REFUND_ME_VERSION` set to a version in `.env`, change it to
 the new one first. Settings live in `.env` only, so an upgraded `docker-compose.yml` keeps them. What each version brings: [CHANGELOG.md](CHANGELOG.md).
 
+**Hearing about new versions.** Twice a day the app asks GitHub's releases of this repository
+(`api.github.com`) which version is the newest. When it is newer than the one running, every
+admin and accountant gets a notification: in the bell, and once as a balloon at the bottom of the
+menu; a small "x.y.z available" mark then stays by the version number until you upgrade. The
+request carries nothing about your install (no version, company or identifier). Turn it off
+under **Admin → System → New versions**, or from outside with `UPDATE_CHECK=off`. A server with
+no internet access simply never hears: a line in the server log, nothing in the app.
+
 On every start the container applies any new database migrations as the **owner** login, then
 runs the app as the **app** login. If a migration fails, the container stops with the reason in
 `docker compose logs app` instead of serving a half-upgraded app. Take a backup first.
@@ -689,6 +697,7 @@ The main ones:
 | `DATABASE_STATEMENT_TIMEOUT_SECONDS` | how long one database statement may run before the database stops it (default `120`; `0`: no limit). PostgreSQL and SQL Server (whose driver otherwise stops one after 15 seconds); not MySQL |
 | `ACTIVITY_IP_KEEP_DAYS` | days an activity entry keeps the address it came from (default `365`; `0`: not kept) |
 | `OCR_WORKERS`, `FILE_WORKERS`, `JOB_RUNNER` | receipts read at once, PDF/HEIC files opened at once, `off` for no background work in this container (see "More reading capacity") |
+| `UPDATE_CHECK` | `off`: never look for a newer version of the app (see "Upgrades"); unset: Admin → System decides, on unless turned off |
 | `RECEIPT_MAX_AGE_DAYS` | how old a receipt can be and still be claimed, in days (default `365`). An older date, or one in the future, is refused when the expense is saved |
 | `MIGRATE_TIMEOUT_MINUTES` | after how long a migration at start is reported in the log as slow (default `30`). It is never stopped: see "If an upgrade fails" |
 | `MIGRATE_RESOLVE_ROLLED_BACK` | the name of a failed migration to mark as rolled back at start, so it's applied again (see "If an upgrade fails"); remove it once the app is up |

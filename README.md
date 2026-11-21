@@ -89,7 +89,7 @@ Refund-Me is built for the phone first and is just as comfortable on a tablet or
 ## Your data stays yours
 
 - **On your own server.** One install per company, on your server or your cloud account. You own the database and the files.
-- **No internet needed.** Receipts are read on the server itself, and PDF reports are made there too. The only thing it fetches is the day's exchange rates (just currency codes and dates are sent), and accounting can enter those by hand instead.
+- **No internet needed.** Receipts are read on the server itself, and PDF reports are made there too. All it fetches is the day's exchange rates (just currency codes and dates are sent; accounting can enter them by hand instead) and whether a newer version was released (nothing about your install is sent; it can be turned off).
 - **Cloud AI only if you choose it.** For even better reading you can connect an AI provider (Anthropic, OpenAI, xAI, OpenRouter) or your own GPU server. It's off until an admin turns it on and confirms, because receipt photos would then go to that provider.
 - **Less kept, less at risk.** The raw text read from receipts is deleted after 30 days; the receipt, its details and the photo stay.
 - **Your choice of database:** the built-in one for small offices, or PostgreSQL, SQL Server, MySQL or MariaDB.
