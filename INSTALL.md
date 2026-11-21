@@ -14,6 +14,7 @@ the IT person doing the install. On [Coolify](https://coolify.io): see [On Cooli
 - [Moving to another database or storage](#moving-to-another-database-or-storage)
 - [HTTPS and the app's address](#https-and-the-apps-address)
 - [Sign-in with Microsoft or Google](#sign-in-with-microsoft-or-google)
+- [Outgoing email through a webhook](#outgoing-email-through-a-webhook)
 - [Reading receipts (OCR) and the optional GPU engine](#reading-receipts-ocr-and-the-optional-gpu-engine)
 - [Upgrades](#upgrades)
 - [Backups](#backups)
@@ -28,8 +29,8 @@ the IT person doing the install. On [Coolify](https://coolify.io): see [On Cooli
   one of **PostgreSQL 15+** (recommended), **SQL Server 2017+ / Azure SQL**, **MySQL 8+ /
   MariaDB 10.6+**.
 - For production: a reverse proxy with HTTPS in front of the container (see below).
-- Optional: an SMTP server for outgoing email; a Microsoft Entra ID or Google Workspace tenant
-  for single sign-on.
+- Optional: an SMTP server (or a webhook that sends email) for outgoing email; a Microsoft
+  Entra ID or Google Workspace tenant for single sign-on.
 
 The app needs **no internet access**: OCR runs locally, and PDF reports are rendered by the
 Chromium inside the image.
@@ -137,6 +138,9 @@ then asks for it first. It isn't needed once the first admin exists.
    are written to the log). Ports 25, 465, 587, 2525 or 1025. A failed test says what kind of
    failure it was; the server's full answer is in the server log. The saved password is reused
    only for the same server, port, user and encryption: change any of them and type it again.
+   Each email's entry in the activity log (Emails → Details) keeps the mail server's reply: its
+   code, the message id, and the recipients it accepted or refused.
+   Or a webhook instead of a mail server: see "Outgoing email through a webhook".
 6. **Branding**: logo, color, currency and language. An SVG logo is saved as the PNG it draws.
 7. **OCR engine**: "Test on a sample receipt" checks that receipt reading works on this server.
 
@@ -411,6 +415,46 @@ client ID*, type *Web application*, authorized redirect URI
 Only people an admin added can sign in, whatever the method; SSO accounts are matched by email.
 Once SSO works, the admin can turn email links and passwords off (**Admin → Sign-in**); admins
 can always still sign in with a password, so a broken SSO setup can't lock everyone out.
+
+## Outgoing email through a webhook
+
+When email goes out through an automation tool (an n8n or Make workflow, a small service of your
+own) rather than a mail server the app can log in to, choose **A webhook** under Admin → System →
+Outgoing email (or in the wizard's Email step) and enter its address, its key and the sender.
+These are saved in the settings file like the mail server's, the key encrypted; there are no
+environment variables for them.
+
+For every email the app sends one request:
+
+```
+POST https://automation.example.com/webhook/send-mail
+Content-Type: application/json
+x-api-key: <the key>
+
+{ "sender": "Expenses <expenses@example.com>", "recipient": "dana@example.com",
+  "subject": "Reminder: submit your November 2026 expenses", "message": "<!doctype html>…" }
+```
+
+`message` is the whole email as HTML. Any 2xx answer means the webhook took the email; any other
+answer, or none within 30 seconds, is recorded as a failed email in the activity log (Emails).
+
+- **Answer when the email is sent, not before.** A webhook that answers at once (n8n: Respond →
+  "Immediately") says 200 even when the sending step fails later, and the app records the email
+  as sent. Answer when the last step finishes, with an error status when it failed.
+- **What the webhook answers is kept with the email** in the activity log (Emails → Details):
+  the status, and from a JSON answer the fields a mail step reports with (`response`,
+  `messageId`, `accepted`, `rejected`, `message`, `error`, `status`, `ok`, `id`), or a short
+  line of plain text. Long values and anything with a link in it are left out, and so is the
+  key, so a webhook that echoes the request back doesn't put the email or a sign-in link in
+  the log.
+- The address must be `https`: emails carry sign-in links. Redirects are not followed.
+- The webhook must refuse requests without the key: anyone who can reach it could otherwise send
+  email as your sender.
+- "Send a test" posts one email to your own address with what is typed, before anything is saved.
+  A failed test says what kind of failure it was (the key refused, nothing at that address, no
+  answer in time). The saved key is reused only for the same server: for another, type it again.
+- A mail server and a webhook can both be saved; the one saved last is the one in use, and
+  turning it off leaves the other. `SMTP_HOST` in the environment always wins over both.
 
 ## Reading receipts (OCR) and the optional GPU engine
 
