@@ -4,6 +4,23 @@ Each version is published as `ghcr.io/oriyahoo/refund-me:<version>` (and `:lates
 upgrade: `docker compose pull && docker compose up -d` in your `refund-me` folder. Database
 changes apply themselves on start; take a backup first.
 
+## 0.3.6
+
+- **Outgoing email through a webhook.** Admin → System → Outgoing email (and the setup wizard's
+  Email step) now asks how to send: a mail server (SMTP), as before, or a webhook, for when your
+  email goes out through an automation tool such as n8n or Make rather than a mail server the
+  app can log in to. Each email is posted to the webhook's address as JSON (`sender`,
+  `recipient`, `subject`, and `message` as HTML) with your key in the `x-api-key` header. "Send
+  a test" tries it before anything is saved, and saving asks you to confirm it's you. A mail
+  server and a webhook can both be saved; the one saved last is the one in use. The address must
+  be `https`. See INSTALL.md → "Outgoing email through a webhook".
+- **What the other side answered, in the activity log.** Each email's entry (Activity log →
+  Emails → Details) now shows how it went out and the answer: the mail server's reply, the
+  message id and the recipients it accepted or refused, or the webhook's status and its report.
+  A failed email keeps the refusal next to the error.
+- **The webhook in the configuration backup.** Saved and restored with the rest; its key is kept
+  only when the server is the same.
+
 ## 0.3.5
 
 - **Amazon S3 storage works.** Testing or moving to Amazon S3 failed with "HTTP 501
