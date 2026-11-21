@@ -4,6 +4,17 @@ Each version is published as `ghcr.io/oriyahoo/refund-me:<version>` (and `:lates
 upgrade: `docker compose pull && docker compose up -d` in your `refund-me` folder. Database
 changes apply themselves on start; take a backup first.
 
+## 0.3.7
+
+- **The app tells you when a new version is out.** Twice a day the server asks GitHub's releases
+  which version is the newest. When it is newer than the one running, every admin and accountant
+  is told once: a notification in the bell, and a balloon at the bottom of the menu that stays 20
+  seconds, with a bar for the time left, then floats away. A small "x.y.z available" mark then
+  stays by the version number until you upgrade. The request carries nothing about your install.
+  Turn it off under Admin → System → New versions (which also has "Check now"), or with
+  `UPDATE_CHECK=off`. A server with no internet access simply never hears. Servers start looking
+  once they run this version, so the first notice will be about the next one.
+
 ## 0.3.6
 
 - **Outgoing email through a webhook.** Admin → System → Outgoing email (and the setup wizard's
